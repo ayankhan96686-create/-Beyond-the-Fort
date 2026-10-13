@@ -1,4 +1,4 @@
-# Time-Aware Digital Discoverability: Beyond the Fort
+# AI-Powered-Hidden-Cultural-Discovery
 **AI Synergy Hackathon 2026 • Round 1 Submission**  
 **Team Identity:** Team Venator (ID: `60358412`) | ITM University Gwalior  
 **Selected Theme:** Theme 04 — Tourism: Beyond the Fort (Gwalior Micro-Corridor Pilot)  
