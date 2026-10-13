@@ -2,7 +2,7 @@
 **AI Synergy Hackathon 2026 • Round 1 Submission**  
 **Team Identity:** Team Venator (ID: `60358412`) | ITM University Gwalior  
 **Selected Theme:** Theme 04 — Tourism: Beyond the Fort (Gwalior Micro-Corridor Pilot)  
-**Live Repository:** `https://github.com/Team-Venator/time-aware-tourism-gwalior`
+**Live Repository:** `https://github.com/ayankhan96686-create/Time-Aware-Digital-Discoverability-Beyond-the-Fort`
 
 ---
 
@@ -79,7 +79,7 @@ Where:
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/Team-Venator/time-aware-tourism-gwalior.git
+git clone https://github.com/ayankhan96686-create/Time-Aware-Digital-Discoverability-Beyond-the-Fort.git
 cd time-aware-tourism-gwalior
 
 # Install dependencies
