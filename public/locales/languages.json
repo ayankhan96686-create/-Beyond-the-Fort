@@ -1,0 +1,23 @@
+[
+  {"code":"hi","name":"Hindi","native":"हिन्दी","direction":"ltr","group":"Indian"},
+  {"code":"bn","name":"Bengali","native":"বাংলা","direction":"ltr","group":"Indian"},
+  {"code":"te","name":"Telugu","native":"తెలుగు","direction":"ltr","group":"Indian"},
+  {"code":"mr","name":"Marathi","native":"मराठी","direction":"ltr","group":"Indian"},
+  {"code":"ta","name":"Tamil","native":"தமிழ்","direction":"ltr","group":"Indian"},
+  {"code":"ur","name":"Urdu","native":"اردو","direction":"rtl","group":"Indian"},
+  {"code":"gu","name":"Gujarati","native":"ગુજરાતી","direction":"ltr","group":"Indian"},
+  {"code":"kn","name":"Kannada","native":"ಕನ್ನಡ","direction":"ltr","group":"Indian"},
+  {"code":"or","name":"Odia","native":"ଓଡ଼ିଆ","direction":"ltr","group":"Indian"},
+  {"code":"ml","name":"Malayalam","native":"മലയാളം","direction":"ltr","group":"Indian"},
+  {"code":"pa","name":"Punjabi","native":"ਪੰਜਾਬੀ","direction":"ltr","group":"Indian"},
+  {"code":"as","name":"Assamese","native":"অসমীয়া","direction":"ltr","group":"Indian"},
+  {"code":"mai","name":"Maithili","native":"मैथिली","direction":"ltr","group":"Indian"},
+  {"code":"sa","name":"Sanskrit","native":"संस्कृतम्","direction":"ltr","group":"Indian"},
+  {"code":"ks","name":"Kashmiri","native":"कॉशुर","direction":"ltr","group":"Indian"},
+  {"code":"en","name":"English","native":"English","direction":"ltr","group":"International"},
+  {"code":"fr","name":"French","native":"Français","direction":"ltr","group":"International"},
+  {"code":"de","name":"German","native":"Deutsch","direction":"ltr","group":"International"},
+  {"code":"es","name":"Spanish","native":"Español","direction":"ltr","group":"International"},
+  {"code":"ar","name":"Arabic","native":"العربية","direction":"rtl","group":"International"},
+  {"code":"zh","name":"Chinese (Simplified)","native":"简体中文","direction":"ltr","group":"International"}
+]

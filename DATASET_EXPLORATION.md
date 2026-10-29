@@ -1,4 +1,6 @@
 # Pilot Dataset Exploration: Gwalior Micro-Corridor
+
+> This is the original pilot-data design brief. Its “audited,” footfall, distance, and verification labels are source claims, not independently validated by this repository. The active records and evidence limits are documented in [docs/DATA_AND_PROVENANCE.md](docs/DATA_AND_PROVENANCE.md).
 **Team Venator (ID: 60358412) • AI Synergy Hackathon 2026**  
 **Selected Theme:** Theme 04 — Tourism: Beyond the Fort
 

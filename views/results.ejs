@@ -5,160 +5,544 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <style>
+    /* Provenance Badges */
+    .badge-provenance {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .badge-verified {
+      background: #DCFCE7;
+      color: #166534;
+      border: 1px solid #86EFAC;
+    }
+    .badge-stakeholder {
+      background: #FEF3C7;
+      color: #92400E;
+      border: 1px solid #FCD34D;
+    }
+    .badge-inference {
+      background: #F3E8FF;
+      color: #6B21A8;
+      border: 1px solid #D8B4FE;
+    }
+
+    /* Timed Itinerary Timeline */
+    .timeline-container {
+      position: relative;
+      margin: 24px 0;
+      padding-left: 28px;
+    }
+    .timeline-container::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      bottom: 10px;
+      width: 2px;
+      background: #CBD5E1;
+    }
+    .timeline-node {
+      position: relative;
+      margin-bottom: 24px;
+      background: #FFFFFF;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -27px;
+      top: 22px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 0 0 2px var(--accent-blue);
+    }
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .time-badge {
+      background: #F1F5F9;
+      color: #0F172A;
+      font-family: monospace;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    /* Rejection Card */
+    .rejection-card {
+      background: #FFF1F2;
+      border: 1px solid #FECDD3;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .rejection-title {
+      font-weight: 700;
+      color: #9F1239;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .rejection-reason {
+      font-size: 0.85rem;
+      color: #881337;
+      line-height: 1.4;
+    }
+
+    /* Agent Trace Box */
+    .agent-pipeline-box {
+      background: #0F172A;
+      color: #94A3B8;
+      border-radius: 12px;
+      padding: 16px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .agent-step-item {
+      color: #38BDF8;
+      margin-bottom: 4px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    
-    <!-- Header -->
-    <header class="header-bar">
-      <a href="/" class="btn-secondary">
-        <span>&larr; Modify Search Parameters</span>
-      </a>
-      <div class="pill-badge coral">
-        <span>Team Venator (ID: 60358412)</span>
-      </div>
-    </header>
 
-    <!-- Results Banner -->
-    <div class="bento-card" style="margin-bottom: 24px; background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%);">
+    <!-- Print-Only Driver Schedule Pass Header -->
+    <div class="print-only-header">
+        <h2 style="font-size: 1.5rem; margin-bottom: 4px;">🏛️ GWALIOR HERITAGE VISIT PLAN</h2>
+      <p style="font-size: 0.9rem; color: #444;">
+        Departure: <strong><%= startTime %></strong> | Non-Negotiable Hard Return Deadline: <strong><%= deadline %></strong> | Origin: <strong><%= origin.label %></strong>
+      </p>
+    </div>
+
+    <!-- Header -->
+    <%- include('partials/navbar') %>
+
+    <!-- Top Summary Banner -->
+    <div class="bento-card" style="margin-bottom: 24px; background: var(--card-bg);">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
         <div>
-          <div class="pill-badge" style="margin-bottom: 8px;">
-            <span>🤖 Gemini 1.5 Flash Intent Parse</span>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+            <% if (typeof weather !== 'undefined' && weather) { %>
+              <div class="pill-badge green">
+                <span>☀️ Gwalior <%= weather.temp %>°C • <%= weather.condition %></span>
+              </div>
+            <% } %>
+            <% if (typeof companion !== 'undefined') { %>
+              <div class="pill-badge">
+                <span><%= companion === 'family' ? '👨‍👩‍👧 Family with children' : (companion === 'couple' ? '👫 Two people' : (companion === 'group' ? '👥 Group' : '👤 Just me')) %></span>
+              </div>
+            <% } %>
+            <% if (typeof transitMode !== 'undefined') { %>
+              <div class="pill-badge">
+              <span><%= transitMode === 'e_rickshaw' ? '⚡ E-rickshaw' : (transitMode === 'cab' ? '🚕 Cab' : '🛺 Auto-rickshaw') %></span>
+              </div>
+            <% } %>
           </div>
-          <h2><%= results.length %> Feasible Cultural Experiences Discovered</h2>
-          <p style="color: var(--text-muted);">
-            Query: &ldquo;<%= query %>&rdquo; &bull; Origin: <strong><%= origin.label %></strong>
+
+          <h2 id="itinerarySummaryText">Your Gwalior visit plan</h2>
+          <p style="color: var(--text-muted); margin-top: 4px;">
+            <%= itinerary.length %> suggested <%= itinerary.length === 1 ? 'stop' : 'stops' %> for &ldquo;<%= query %>&rdquo;. Start and return: <strong><%= origin.label %></strong>
           </p>
         </div>
 
-        <div style="text-align: right; background: #FFFFFF; padding: 12px 18px; border-radius: 12px; border: 1px solid var(--card-border);">
-          <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Time Window Budget</div>
-          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--accent-blue);">
-            <%= timeBudgetHours %> Hours (<%= timeBudgetMinutes %> min)
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <div style="background: #FFFFFF; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--card-border); text-align: center;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Start Time</div>
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700; color: #0F172A;">
+              <%= startTime %>
+            </div>
           </div>
-          <div style="font-size: 0.75rem; color: var(--accent-coral); font-weight: 600;">Includes +25% Safety Buffer</div>
+          <div style="background: #FFFFFF; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--card-border); text-align: center;">
+            <div style="font-size: 0.75rem; color: var(--accent-coral); font-weight: 700; text-transform: uppercase;">Back by</div>
+            <div id="itineraryDeadlineText" style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700; color: var(--accent-coral);">
+              <%= deadline %>
+            </div>
+          </div>
+          <div style="background: #FFFFFF; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--card-border); text-align: center;">
+            <div style="font-size: 0.75rem; color: var(--accent-blue); font-weight: 700; text-transform: uppercase;">Time available</div>
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700; color: var(--accent-blue);">
+              <%= timeBudgetHours %> hours
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Feasible Results Grid -->
-    <% if (results && results.length > 0) { %>
-      <div class="results-grid">
-        <% results.forEach(poi => { %>
-          <div class="poi-card">
-            <div>
-              <div class="poi-header">
-                <div>
-                  <span class="category-tag"><%= poi.category %></span>
-                  <h3 style="margin-top: 8px;"><%= poi.name %></h3>
-                  <div class="hindi-title"><%= poi.hindiName %></div>
-                </div>
-                <div class="status-pill verified">
-                  <span>&check; <%= poi.verification_status %></span>
-                </div>
-              </div>
-
-              <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 12px;">
-                <%= poi.description %>
-              </p>
-
-              <!-- Transit verification tag -->
-              <div style="margin-bottom: 12px;">
-                <% if (poi.is_transit_verified) { %>
-                  <span class="status-pill verified">
-                    <span>📡 <%= poi.transit_verification_tag %></span>
-                  </span>
-                <% } else { %>
-                  <span class="status-pill unverified">
-                    <span>⚠️ <%= poi.transit_verification_tag %></span>
-                  </span>
-                <% } %>
-                <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 8px;">
-                  <%= poi.calculated_distance_km %> km from Fort
-                </span>
-              </div>
-
-              <!-- Mathematical Feasibility Envelope Box -->
-              <div class="math-envelope-box">
-                <div class="math-envelope-header">
-                  <span>TIME ENVELOPE BREAKDOWN</span>
-                  <span>T_total &le; <%= timeBudgetMinutes %>m</span>
-                </div>
-                
-                <div class="math-breakdown">
-                  <div class="math-col">
-                    <div class="num"><%= poi.feasibility.t_outbound %>m</div>
-                    <div class="label">Outbound</div>
-                  </div>
-                  <div class="math-col">
-                    <div class="num"><%= poi.feasibility.t_visit %>m</div>
-                    <div class="label">Dwell</div>
-                  </div>
-                  <div class="math-col">
-                    <div class="num"><%= poi.feasibility.t_return %>m</div>
-                    <div class="label">Return</div>
-                  </div>
-                  <div class="math-col">
-                    <div class="num" style="color: var(--accent-coral);">+<%= poi.feasibility.t_buffer %>m</div>
-                    <div class="label">Buffer (25%)</div>
-                  </div>
-                </div>
-
-                <div class="total-slack-bar">
-                  <div class="total-time">
-                    Total Required: <strong><%= poi.feasibility.t_total %> mins</strong>
-                  </div>
-                  <div class="slack">
-                    +<%= poi.feasibility.slack_minutes %> mins Slack
-                  </div>
-                </div>
-              </div>
-
-              <!-- Community Guidelines & Highlights -->
-              <div style="font-size: 0.85rem; color: var(--text-muted);">
-                <strong>Artisan Guidelines:</strong>
-                <ul style="margin-left: 18px; margin-top: 4px;">
-                  <% (poi.community_rules || []).forEach(rule => { %>
-                    <li><%= rule %></li>
-                  <% }) %>
-                </ul>
-              </div>
-            </div>
-
-            <!-- Footer Details -->
-            <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted);">
-              <div>Open: <%= poi.operating_hours.open %> &ndash; <%= poi.operating_hours.close %></div>
-              <div>Audited: <%= poi.last_audited %></div>
-            </div>
-
-          </div>
-        <% }) %>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="bento-card visitor-alert" role="alert">
+        <h3>We couldn’t build your plan</h3>
+        <p>Something went wrong while preparing the visit. Please go back, check your choices, and try again.</p>
+        <a href="/" class="btn-secondary" style="margin-top: 12px;">Back to the planner</a>
       </div>
-    <% } else { %>
-      <!-- Zero Results / Infeasible State -->
-      <div class="bento-card" style="text-align: center; padding: 48px 24px;">
-        <div style="font-size: 2.5rem; margin-bottom: 12px;">⏱️</div>
-        <h2>No Cultural Candidates Satisfy the Strict Time Limit</h2>
-        <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto 24px auto;">
-          Our deterministic mathematical engine strictly pruned all candidates because their total travel, dwell time, and 25% safety buffer exceeded your available budget of <strong><%= timeBudgetMinutes %> minutes</strong>.
+    <% } else if (!itinerary || itinerary.length === 0) { %>
+      <div class="bento-card visitor-alert" role="status">
+        <h3>No places fit this plan yet</h3>
+        <p>Try allowing more time or choosing a different interest to see more suggestions.</p>
+        <a href="/" class="btn-secondary" style="margin-top: 12px;">Change my choices</a>
+      </div>
+    <% } %>
+
+    <!-- Export Action Toolbar -->
+    <div class="export-toolbar">
+      <button id="printPassBtn" class="btn-secondary" type="button">
+        <span>🖨️ Print this plan</span>
+      </button>
+      <button id="whatsappShareBtn" class="btn-whatsapp" type="button">
+        <span>📱 Share on WhatsApp</span>
+      </button>
+      <div style="margin-left: auto; display: flex; align-items: center; font-size: 0.85rem; color: var(--text-muted);">
+        <span>Estimated plan fits within your <strong><%= timeBudgetHours %> hour time window</strong>.</span>
+      </div>
+    </div>
+
+    <!-- Interactive GIS Corridor & Route Map Bento Card -->
+    <div class="bento-card map-card-wrapper" style="margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+        <div>
+          <h3>🗺️ Your route around Gwalior</h3>
+          <p style="color: var(--text-muted); font-size: 0.88rem;">
+            See your starting point and suggested stops. Travel lines show an estimated route.
+          </p>
+        </div>
+        <div class="pill-badge green">
+          <span>Route estimate</span>
+        </div>
+      </div>
+
+      <div id="corridorMap"></div>
+
+      <div class="map-legend">
+        <div class="legend-item">
+          <span class="legend-dot fort"></span>
+          <span>Origin: Gwalior Fort Gate</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot stop"></span>
+          <span>Your stops</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot corridor"></span>
+          <span>Nearby area guide</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot pruned"></span>
+          <span>Places that don’t fit your time</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: Chronological Timed Itinerary (Slide 8 & 9) -->
+    <% if (itinerary && itinerary.length > 0) { %>
+      <div class="bento-card" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h3>📅 Your visit plan</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+              These are estimates. We’ve included extra time for travel and exploring, but traffic and opening hours can change.
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <span class="badge-provenance badge-verified">● Verified</span>
+            <span class="badge-provenance badge-stakeholder">● Local source</span>
+            <span class="badge-provenance badge-inference">● Estimate</span>
+          </div>
+        </div>
+
+        <div class="timeline-container">
+          <!-- Start Node -->
+          <div class="timeline-node" style="background: #F8FAFC;">
+            <div class="timeline-dot" style="background: #10B981; box-shadow: 0 0 0 2px #10B981;"></div>
+            <div class="timeline-header">
+              <span style="font-weight: 700; color: #0F172A;">📍 Depart Origin: <%= origin.label %></span>
+              <span class="time-badge"><%= startTime %></span>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              Your visit begins. Estimated travel to the first stop.
+            </div>
+          </div>
+
+          <!-- POI Stops -->
+          <% itinerary.forEach(stop => { %>
+            <div class="timeline-node">
+              <div class="timeline-dot"></div>
+              <div class="timeline-header">
+                <div>
+                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-blue); text-transform: uppercase;">Stop #<%= stop.sequence %></span>
+                  <h4 style="margin: 2px 0 0 0; font-size: 1.1rem;"><%= stop.name %></h4>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <% if (stop.source_class === 'VERIFIED') { %>
+                    <span class="badge-provenance badge-verified">&check; Verified</span>
+                  <% } else if (stop.source_class === 'STAKEHOLDER-PROVIDED') { %>
+                    <span class="badge-provenance badge-stakeholder">&check; Local source</span>
+                  <% } else { %>
+                    <span class="badge-provenance badge-inference">Estimate</span>
+                  <% } %>
+                  <span class="time-badge"><%= stop.arrival_time %> &ndash; <%= stop.departure_time %></span>
+                </div>
+              </div>
+
+              <!-- Transit and Dwell metrics -->
+              <div class="stop-metrics">
+                <div>Travel: <strong><%= stop.transit_from_previous_mins %> min</strong> (<%= stop.distance_km %> km)</div>
+                <div>Time to explore: <strong><%= stop.dwell_mins %> min</strong></div>
+                <div>Extra time: <strong><%= stop.buffer_mins %> min</strong></div>
+              </div>
+
+              <% if (stop.community_rules && stop.community_rules.length > 0) { %>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">
+                  <strong>Community Protocol:</strong> <%= stop.community_rules[0] %>
+                </div>
+              <% } %>
+            </div>
+          <% }) %>
+
+          <!-- Return Node -->
+          <div class="timeline-node" style="background: #F0FDF4; border-color: #BBF7D0;">
+            <div class="timeline-dot" style="background: #059669; box-shadow: 0 0 0 2px #059669;"></div>
+            <div class="timeline-header">
+              <span style="font-weight: 700; color: #065F46;">🏁 Return to <%= origin.label %></span>
+              <span class="time-badge" style="background: #DCFCE7; color: #166534;">Before <%= deadline %></span>
+            </div>
+            <div style="font-size: 0.85rem; color: #047857;">
+              Estimated arrival before your return time of <%= deadline %>. Please allow extra time for changing local conditions.
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- SECTION 2: Provenance & Factual Evidence Audit (Slide 8) -->
+    <% if (evidence && evidence.length > 0) { %>
+      <div class="bento-card" style="margin-bottom: 24px;">
+        <h3>🛡️ About these place details</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+          We label where details come from so you can judge how to use them.
         </p>
-        <a href="/" class="btn-primary">
-          <span>Increase Available Time Window &rarr;</span>
-        </a>
+
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+            <thead>
+              <tr style="background: #F8FAFC; border-bottom: 2px solid var(--card-border);">
+                <th style="padding: 10px 12px;">Place detail</th>
+                <th style="padding: 10px 12px;">Type</th>
+                <th style="padding: 10px 12px;">Information source</th>
+                <th style="padding: 10px 12px;">Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% evidence.slice(0, 6).forEach(ev => { %>
+                <tr style="border-bottom: 1px solid var(--card-border);">
+                  <td style="padding: 10px 12px; font-weight: 600;"><%= ev.claim %></td>
+                  <td style="padding: 10px 12px; color: var(--text-muted);"><%= ev.claim_type.replace(/_/g, ' ') %></td>
+                  <td style="padding: 10px 12px;">
+                    <% if (ev.source_class === 'VERIFIED') { %>
+                    <span class="badge-provenance badge-verified">&check; Verified</span>
+                    <% } else if (ev.source_class === 'STAKEHOLDER-PROVIDED') { %>
+                    <span class="badge-provenance badge-stakeholder">&check; Local source</span>
+                    <% } else { %>
+                    <span class="badge-provenance badge-inference">Estimate</span>
+                    <% } %>
+                  </td>
+                  <td style="padding: 10px 12px; font-family: monospace; font-size: 0.8rem; color: var(--text-muted);">
+                    <%= ev.evidence_source %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Places that do not fit the available time -->
+    <% if (rejectedOptions && rejectedOptions.length > 0) { %>
+      <div class="bento-card" style="margin-bottom: 24px;">
+        <h3>Places that need more time</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+          We left these out because the estimated visit would run past your return time of <strong><%= deadline %></strong>.
+        </p>
+
+        <div>
+          <% rejectedOptions.forEach(opt => { %>
+            <div class="rejection-card">
+              <div class="rejection-title">
+                <span><%= opt.poi_name %></span>
+                <span>About <%= opt.slack_mins %> min over</span>
+              </div>
+              <div class="rejection-reason">
+                <%= opt.reason %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
       </div>
     <% } %>
 
     <!-- Footer -->
     <footer>
       <div>
-        <strong>Team Venator</strong> (ID: 60358412) • ITM University Gwalior
+        <strong>Beyond the Fort</strong> · Gwalior, India
       </div>
       <div>
-        AI Synergy Hackathon 2026 • Deterministic Mathematical Feasibility Engine
+        Discover local food, music, and crafts
       </div>
     </footer>
 
   </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/js/i18n.js?v=nav-i18n-1"></script><script src="/js/main.js"></script>
+  <script>
+    function toggleJsonView() {
+      const container = document.getElementById('jsonContainer');
+      container.style.display = container.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Initialize Leaflet GIS Corridor Map
+    document.addEventListener('DOMContentLoaded', () => {
+      const mapEl = document.getElementById('corridorMap');
+      if (!mapEl) return;
+
+      const origin = <%- JSON.stringify(origin || { coordinates: { lat: 26.2298, lng: 78.1733 }, label: "Gwalior Fort Main Gate" }) %>;
+      const originLat = origin.coordinates ? origin.coordinates.lat : (origin.lat || 26.2298);
+      const originLng = origin.coordinates ? origin.coordinates.lng : (origin.lng || 78.1733);
+      const originLabel = origin.label || "Gwalior Fort Main Gate";
+
+      const allPois = <%- JSON.stringify(typeof allPois !== 'undefined' ? allPois : []) %>;
+      const itineraryStops = <%- JSON.stringify(itinerary || []) %>;
+      const rejected = <%- JSON.stringify(rejectedOptions || []) %>;
+
+      // Base map centered on Gwalior
+      const map = L.map('corridorMap').setView([originLat, originLng], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap contributors | Team Venator'
+      }).addTo(map);
+
+      // 3.0 km Corridor Inner Circle (Dispersal boundary)
+      L.circle([originLat, originLng], {
+        color: '#10B981',
+        dashArray: '6, 6',
+        fillColor: '#10B981',
+        fillOpacity: 0.04,
+        radius: 3000
+      }).addTo(map).bindPopup('<strong>3.0 km Micro-Corridor Boundary</strong><br>Authentic cultural artisans start beyond this line.');
+
+      // 8.0 km Corridor Outer Limit
+      L.circle([originLat, originLng], {
+        color: '#059669',
+        dashArray: '4, 8',
+        fillColor: '#059669',
+        fillOpacity: 0.02,
+        radius: 8000
+      }).addTo(map).bindPopup('<strong>8.0 km Outer Pilot Limit</strong><br>Maximum safe travel radius for 5-8h day visitors.');
+
+      // Fort Origin Marker
+      const fortIcon = L.divIcon({
+        className: 'custom-pin pin-fort',
+        html: '🏰',
+        iconSize: [34, 34],
+        iconAnchor: [17, 17]
+      });
+
+      L.marker([originLat, originLng], { icon: fortIcon }).addTo(map)
+        .bindPopup(`<strong>📍 Departure / Return Hub</strong><br>${originLabel}`)
+        .openPopup();
+
+      const routePoints = [[originLat, originLng]];
+
+      // Plot Scheduled Itinerary Stops (Numbered Sequence)
+      itineraryStops.forEach(stop => {
+        const poi = allPois.find(p => p.id === stop.poi_id) || {};
+        const lat = (stop.coordinates && stop.coordinates.lat) || (poi.coordinates && poi.coordinates.lat);
+        const lng = (stop.coordinates && stop.coordinates.lng) || (poi.coordinates && poi.coordinates.lng);
+
+        if (lat && lng) {
+          routePoints.push([lat, lng]);
+
+          const stopIcon = L.divIcon({
+            className: 'custom-pin pin-stop',
+            html: `<span>${stop.sequence}</span>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+          });
+
+          const verifiedBadge = stop.source_class === 'VERIFIED' ? '✅ Verified' : (stop.source_class === 'STAKEHOLDER-PROVIDED' ? '📌 Local source' : 'ℹ️ Estimate');
+
+          L.marker([lat, lng], { icon: stopIcon }).addTo(map)
+            .bindPopup(`
+              <div style="font-family: sans-serif; font-size: 0.85rem;">
+                <div style="font-weight: 700; color: #1E293B; margin-bottom: 4px;">Stop #${stop.sequence}: ${stop.name}</div>
+                <div style="color: #64748B; margin-bottom: 6px;">Schedule: <strong>${stop.arrival_time} &ndash; ${stop.departure_time}</strong> (${stop.dwell_mins}m dwell)</div>
+                <div style="color: #64748B; margin-bottom: 6px;">Transit from previous: <strong>${stop.transit_from_previous_mins}m</strong> (${stop.distance_km} km)</div>
+                <div>Status: <span style="font-weight: 700; font-size: 0.75rem;">${verifiedBadge}</span></div>
+              </div>
+            `);
+        }
+      });
+
+      // Plot Pruned / Over-Budget Venues (Red markers)
+      rejected.forEach(rej => {
+        const p = allPois.find(item => item.id === rej.poi_id || item.name === rej.poi_name);
+        if (p && p.coordinates && p.coordinates.lat && p.coordinates.lng) {
+          const prunedIcon = L.divIcon({
+            className: 'custom-pin pin-pruned',
+            html: '✕',
+            iconSize: [22, 22],
+            iconAnchor: [11, 11]
+          });
+
+          L.marker([p.coordinates.lat, p.coordinates.lng], { icon: prunedIcon }).addTo(map)
+            .bindPopup(`
+              <div style="font-family: sans-serif; font-size: 0.82rem; color: #991B1B;">
+                <strong>🚫 PRUNED: ${p.name}</strong><br>
+                <span>Deficit: ${rej.slack_mins} min</span><br>
+                <span style="font-size: 0.75rem; color: #7F1D1D;">${rej.reason}</span>
+              </div>
+            `);
+        }
+      });
+
+      // Connect stops with Polyline if stops exist
+      if (routePoints.length > 1) {
+        routePoints.push([originLat, originLng]); // Return to Fort Hub
+
+        const polyline = L.polyline(routePoints, {
+          color: '#3B82F6',
+          weight: 4,
+          opacity: 0.85,
+          dashArray: '8, 6'
+        }).addTo(map);
+
+        map.fitBounds(polyline.getBounds().pad(0.18));
+      }
+    });
+  </script>
 </body>
 </html>

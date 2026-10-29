@@ -40,9 +40,8 @@ class DatabaseService {
     }
 
     try {
-      // If MongoDB driver is installed in production, it would connect here.
-      // Gracefully defaulting to local high-performance store.
-      console.log('[DB Layer] MongoDB URI detected. Operating with hybrid Atlas sync.');
+      // MongoDB is not wired into this project; the curated JSON file remains authoritative.
+      console.log('[DB Layer] MongoDB configuration detected, but no MongoDB adapter is installed. Using the local curated dataset.');
       this.isConnected = true;
       return true;
     } catch (error) {

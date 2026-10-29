@@ -1,7 +1,7 @@
 /**
  * Feasibility Controller - Core Pipeline Orchestrator
  * Team Venator (ID: 60358412) - AI Synergy Hackathon 2026
- * 
+ *
  * Pipeline Execution:
  * 1. Request Sanitization & Boundary Check
  * 2. Gemini Multilingual Intent Extraction
@@ -15,6 +15,7 @@ const schemaValidator = require('../utils/schemaValidator');
 const geminiService = require('../services/geminiService');
 const mongoService = require('../services/mongoService');
 const feasibilityMath = require('../utils/feasibilityMath');
+const tourismWorkflowService = require('../services/tourismWorkflowService');
 const config = require('../config/env');
 
 class FeasibilityController {
@@ -71,11 +72,11 @@ class FeasibilityController {
         results: evaluatedResults
       });
     } catch (error) {
-      console.error('[Feasibility Controller] Search API error:', error);
+      console.error(JSON.stringify({ event: 'legacy.feasibility.failed', error_type: error?.name || 'Error' }));
       return res.status(500).json({
         status: 'error',
         code: 'INTERNAL_EVALUATION_ERROR',
-        message: error.message
+        message: 'Feasibility search failed.'
       });
     }
   }
@@ -105,42 +106,82 @@ class FeasibilityController {
       const rawQuery = req.body.query || 'Authentic artisan workshops';
       const timeBudgetHours = parseFloat(req.body.time_budget_hours) || 3.0;
       const timeBudgetMinutes = Math.round(timeBudgetHours * 60);
+      const startTime = req.body.start_time || '10:00';
+      const deadline = req.body.deadline || '18:00';
+      const companion = req.body.companion || 'solo';
+      const transitMode = req.body.transit_mode || 'auto';
       const origin = config.defaultOrigin;
 
-      // 1. Gemini NLP Intent extraction
+      // 1. Call the Flask/LangGraph Tourism REST workflow
+      const workflowResult = await tourismWorkflowService.executeWorkflow({
+        query: rawQuery,
+        duration_hours: timeBudgetHours,
+        start_time: startTime,
+        deadline: deadline,
+        origin: origin,
+        companion: companion,
+        transit_mode: transitMode
+      });
+
+      // 2. Gemini NLP Intent extraction for candidate cards
       const intent = await geminiService.extractIntent(rawQuery, timeBudgetMinutes);
 
-      // 2. Spatial candidates
+      // 3. Spatial candidates & deterministic math
       const candidates = await mongoService.findCandidates({
         category: intent.category,
         origin
       });
 
-      // 3. Feasibility math evaluation & pruning
+      const allPois = await mongoService.findCandidates({
+        category: 'all',
+        origin
+      });
+
       const evaluatedResults = feasibilityMath.pruneAndRank(candidates, timeBudgetMinutes, false);
 
       res.render('results', {
-        title: 'Feasibility Results | Team Venator',
+        title: 'Your Gwalior Visit Plan | Beyond the Fort',
         query: rawQuery,
         timeBudgetHours,
         timeBudgetMinutes,
+        startTime,
+        deadline,
+        companion,
+        transitMode,
         origin,
         intent,
         results: evaluatedResults,
-        totalScreened: candidates.length
+        totalScreened: candidates.length,
+        allPois,
+        workflowResult,
+        itinerary: workflowResult.itinerary || [],
+        evidence: workflowResult.evidence || [],
+        rejectedOptions: workflowResult.rejected_options || [],
+        agentTrace: workflowResult.agent_trace || [],
+        warnings: workflowResult.warnings || [],
+        tripSummary: workflowResult.trip_summary || ''
       });
     } catch (err) {
-      console.error('[Feasibility Controller] Web render error:', err);
+      console.error(JSON.stringify({ event: 'legacy.search.render_failed', error_type: err?.name || 'Error' }));
       res.render('results', {
-        title: 'Error | Team Venator',
+        title: 'Plan unavailable | Beyond the Fort',
         query: req.body.query || '',
         timeBudgetHours: 3.0,
         timeBudgetMinutes: 180,
+        startTime: '10:00',
+        deadline: '18:00',
         origin: config.defaultOrigin,
         intent: { category: 'all', normalized_query: 'Error fallback' },
         results: [],
         totalScreened: 0,
-        error: err.message
+        workflowResult: null,
+        itinerary: [],
+        evidence: [],
+        rejectedOptions: [],
+        agentTrace: [],
+        warnings: [],
+        tripSummary: '',
+        error: 'Plan unavailable. Please try again.'
       });
     }
   }

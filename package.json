@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node --test tests/acceptanceTests.test.js"
+    "test": "node --test tests/acceptanceTests.test.js tests/agentProgress.test.js tests/i18n.test.js"
   },
   "keywords": [
     "hackathon",

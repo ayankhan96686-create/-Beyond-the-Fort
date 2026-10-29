@@ -1,6 +1,18 @@
 node_modules/
 .env
+.env.*
+!.env.example
+!.env.template
 .DS_Store
 *.log
 npm-debug.log*
 .tempmediaStorage/
+
+# Local Python environments and test caches
+**/.venv/
+**/.pytest_cache/
+
+# Local Python workflow dependencies and bytecode
+multiagent-engine/.packages/
+__pycache__/
+*.py[cod]

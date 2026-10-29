@@ -1,4 +1,6 @@
 # Mathematical Feasibility Model & Time Budget Mechanics
+
+> This document describes the intended deterministic schedule rule. The computed return time is an estimate based on route-provider data and a 25% buffer, not a guarantee of real-world arrival. Current implementation details and constraints are in [docs/AGENT_EXECUTION_REPORT.md](docs/AGENT_EXECUTION_REPORT.md).
 **Team Venator (ID: 60358412) • AI Synergy Hackathon 2026**  
 **Theme:** Theme 04 — Tourism: Beyond the Fort
 

@@ -27,9 +27,10 @@ class IntentController {
         parsed_intent: parsedIntent
       });
     } catch (err) {
+      console.error(JSON.stringify({ event: 'intent.parse_failed', error_type: err?.name || 'Error' }));
       res.status(500).json({
         status: 'error',
-        message: err.message
+        message: 'Intent parsing failed.'
       });
     }
   }

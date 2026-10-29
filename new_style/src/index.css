@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --heritage-cream: #FDFBF7;
+    --heritage-maroon: #8B0000;
+    --heritage-gold: #D4AF37;
+  }
+
+  html,
+  body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-x: clip;
+    background-color: #FDFBF7;
+    color: #2D241E;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Ensure overflow-x-hidden does not break position: sticky */
+.overflow-x-hidden {
+  overflow-x: clip;
+}
+
+/* Custom Heritage Utility Classes & Fonts */
+.font-heritage {
+  font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+}
+
+.heritage-pattern {
+  background-color: #FDFBF7;
+  background-image: radial-gradient(#D4AF37 0.75px, transparent 0.75px), radial-gradient(#8B0000 0.75px, #FDFBF7 0.75px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  background-opacity: 0.05;
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #F5D77F 50%, #AA820A 100%);
+}
+
+.maroon-gradient {
+  background: linear-gradient(135deg, #8B0000 0%, #660000 70%, #400000 100%);
+}
+
+.maroon-gold-border {
+  border: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #FDFBF7;
+}
+::-webkit-scrollbar-thumb {
+  background: #D4AF37;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8B0000;
+}

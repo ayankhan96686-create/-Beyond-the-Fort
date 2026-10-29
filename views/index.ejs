@@ -4,136 +4,266 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
-  <link rel="stylesheet" href="/css/style.css">
+  <meta name="description" content="Explore Gwalior's heritage, local food, music and artisans with a plan that fits your day.">
+  <meta name="theme-color" content="#350d0e">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css?v=heritage-5">
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
 </head>
-<body>
-  <div class="container">
-    
-    <!-- Top Header Bar -->
-    <header class="header-bar">
-      <div class="pill-badge">
-        <span>🚀 AI Synergy Hackathon 2026 • Round 1</span>
+<body class="heritage-app">
+  <%- include('partials/navbar') %>
+  <main class="heritage-main" id="home">
+  <section class="heritage-hero" aria-labelledby="hero-heading">
+    <svg class="heritage-hero-art" viewBox="0 0 1800 720" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of Gwalior Fort above the city at sunset">
+      <defs>
+        <linearGradient id="fortSky" x2="0" y2="1"><stop stop-color="#c2945c"/><stop offset=".56" stop-color="#7c5240"/><stop offset="1" stop-color="#30251f"/></linearGradient>
+        <linearGradient id="fortStone" x2="0" y2="1"><stop stop-color="#d2aa70"/><stop offset="1" stop-color="#805039"/></linearGradient>
+        <linearGradient id="fortHill" x2="0" y2="1"><stop stop-color="#604332"/><stop offset="1" stop-color="#171815"/></linearGradient>
+        <pattern id="fortWindows" width="42" height="44" patternUnits="userSpaceOnUse"><path d="M14 44V27a7 7 0 0 1 14 0v17" fill="#422f27" opacity=".76"/><path d="M0 43h42" stroke="#eed19a" stroke-opacity=".22"/></pattern>
+      </defs>
+      <path fill="url(#fortSky)" d="M0 0h1800v720H0z"/><circle cx="1430" cy="178" r="94" fill="#f3d298" opacity=".55"/>
+      <path fill="#9a6748" opacity=".62" d="M0 470q240-95 470-45t480-25q245-90 420 8t430-22v334H0z"/>
+      <path fill="url(#fortHill)" d="M520 597q205-80 350-54 125-95 243-58 123-125 247-90 136-109 277-48 95-14 163 29v344H520z"/>
+      <g fill="url(#fortStone)" stroke="#e5c28a" stroke-opacity=".42" stroke-width="3">
+        <path d="M884 457h153v-94h38v94h100v-130h34v-45h38v45h34v130h101v-101h33v-43h39v43h35v101h140v-76h38v-38h39v38h38v76h69v96H884z"/>
+        <path d="M1090 327h31v-50h14v-40h24v40h14v50h30v21h-113zM1365 283h29v-49h15v-38h24v38h15v49h29v26h-112zM1537 349h26v-40h14v-33h22v33h14v40h27v20h-103z"/>
+        <path d="M1183 458v-71a36 36 0 0 1 72 0v71M1447 458v-58a30 30 0 0 1 60 0v58"/>
+      </g>
+      <path fill="url(#fortWindows)" d="M884 457h932v96H884z"/><path fill="#d7b378" opacity=".8" d="M889 456h930v13H889z"/>
+      <path fill="#241e19" d="M0 625q221-68 422-27 174-46 331 5 178-42 317 10 206-61 356 7 203-64 374 1v99H0z"/>
+      <g fill="#201d19" opacity=".88"><path d="M54 602h54v-43h8v-28h14v28h8v43h35v-64h8v-25h15v25h8v64h45v-53h8v-29h14v29h8v53h65v84H54z"/><path d="M1670 580h36v-53h10v-27h14v27h10v53h36v-45h10v-22h14v22h10v45h43v105h-183z"/></g>
+    </svg>
+    <div class="heritage-hero-wash"></div>
+    <div class="heritage-hero-content">
+      <div class="heritage-eyebrow" data-i18n="home.eyebrow"><span>✳</span> UNESCO CITY OF MUSIC · MADHYA PRADESH, INDIA</div>
+      <h1 id="hero-heading" data-i18n="home.title">Where history finds its harmony.</h1>
+      <p data-i18n="home.description">Beyond the fortress walls, discover Gwalior's living culture—one beautiful moment at a time.</p>
+      <div class="hero-actions">
+        <a class="hero-primary" href="#discover"><span data-i18n="home.discoverCta">Discover Gwalior</span><span aria-hidden="true">↗</span></a>
+        <a class="hero-secondary" href="#trip-planner"><span aria-hidden="true">▷</span><span data-i18n="home.planCta">Plan your visit</span></a>
       </div>
-      <div class="pill-badge coral">
-        <span>Team Venator (ID: 60358412)</span>
-      </div>
-    </header>
-
-    <!-- Hero Title -->
-    <div>
-      <h1>Time-Aware Digital Discoverability</h1>
-      <p class="subtitle">Tourism Beyond the Fort — Connecting Day Visitors with Authenticated Cultural Artisans Within Strict Time Windows</p>
     </div>
+    <div class="hero-caption"><span>26°13′48″N&nbsp; 78°10′26″E</span><span>THE HEART OF MADHYA PRADESH</span></div>
+    <div class="hero-index"><span>01</span> / 03 <i></i></div>
+  </section>
+  <section class="heritage-intro" id="discover">
+    <span class="section-kicker">A CITY OF MANY STORIES</span>
+    <div class="intro-columns"><h2>More than a<br><em>destination.</em></h2><div><p>From the ancient sandstone ramparts above the city to the sound of a sarod drifting through a historic courtyard, Gwalior rewards the curious.</p><a href="#places">EXPLORE THE CITY <span>↗</span></a></div></div>
+    <div class="heritage-stats"><div><strong>1,200<span>+</span></strong><small>YEARS OF HISTORY</small></div><div><strong>36</strong><small>CURATED PLACES</small></div><div><strong>01</strong><small>UNFORGETTABLE CITY</small></div></div>
+  </section>
+  <section class="places-section" id="places">
+    <div class="places-heading"><div><span class="section-kicker">FIND YOUR GWALIOR</span><h2>Follow what <em>moves you.</em></h2></div><a href="#trip-planner">VIEW YOUR VISIT <span>↗</span></a></div>
+    <div class="heritage-place-grid">
+      <a class="heritage-place-card place-fort" data-query="I want to explore Gwalior heritage and forts" href="#trip-planner"><img src="https://images.unsplash.com/photo-1599831104325-508b98453e92?auto=format&amp;fit=crop&amp;w=1050&amp;q=85" alt="Gwalior Fort rising above the city"><span class="place-card-index">01 / HERITAGE</span><span class="place-card-copy"><small>STAND ABOVE IT ALL</small><strong>The Fort &amp; its<br>stories</strong><i>EXPLORE THE LANDMARK&nbsp; ↗</i></span></a>
+      <a class="heritage-place-card place-music" data-query="I want to explore Tansen's classical music heritage" href="#trip-planner"><img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&amp;fit=crop&amp;w=800&amp;q=85" alt="Musician performing Indian classical music"><span class="place-card-index">02 / MUSIC</span><span class="place-card-copy"><small>LISTEN A LITTLE CLOSER</small><strong>A city in<br>raag</strong><i>HEAR THE CITY&nbsp; ↗</i></span></a>
+      <a class="heritage-place-card place-craft" data-query="I want to meet Gwalior craft and textile artisans" href="#trip-planner"><img src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&amp;fit=crop&amp;w=800&amp;q=85" alt="Artisan's hands at work on a traditional craft"><span class="place-card-index">03 / LIVING CULTURE</span><span class="place-card-copy"><small>MADE HERE, BY HAND</small><strong>Meet the<br>makers</strong><i>MEET LOCAL ARTISANS&nbsp; ↗</i></span></a>
+    </div>
+  </section>
+  <section class="heritage-planner" id="trip-planner">
+    <div class="planner-heading"><span class="section-kicker">YOUR DAY, WELL SPENT</span><h2>Make room for<br><em>the unexpected.</em></h2><p>Tell us what you love. We’ll help you discover places that fit your day, with time to get back when you need to.</p><div class="planner-trust"><span>✳</span> CURATED PLACES&nbsp; · &nbsp;PRACTICAL TIMINGS&nbsp; · &nbsp;ROOM TO WANDER</div></div>
+    <div class="container planner-container">
 
     <!-- Bento Grid Layout -->
     <div class="bento-grid">
-      
-      <!-- Primary Search Card (Span 8) -->
-      <div class="bento-card bento-col-8">
-        <h2>Plan Cultural Detour</h2>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">
-          Origin: <strong><%= defaultOrigin.label %></strong> (Gwalior Micro-Corridor)
-        </p>
 
-        <form action="/search" method="POST" class="search-form">
+      <!-- Primary Search Card (Span 8) -->
+      <div class="bento-card bento-col-8" style="grid-column: span 12;" id="trip-form-card">
+        <h2>Plan your visit</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Choose your real start and destination. Your location is only requested when you press the location button.</p>
+
+        <form action="/search" method="POST" class="search-form" id="planForm">
+          <input type="hidden" name="city" value="Gwalior">
+          <input type="hidden" name="companion" id="companionInput" value="solo">
+          <input type="hidden" name="transit_mode" id="transitModeInput" value="auto">
+
+          <section class="location-picker" aria-labelledby="locationPickerTitle">
+            <div class="location-picker-heading"><div><span class="section-kicker" data-i18n="planner.journey">YOUR JOURNEY</span><h3 id="locationPickerTitle" data-i18n="planner.where">Where are you starting and ending?</h3></div><p>We use these points to route the whole trip, including the final leg.</p></div>
+            <p class="location-privacy-note">One-time location only. Browser permission is requested after you choose it; we do not track continuously. Precise coordinates are used to calculate your itinerary and kept in this tab’s session storage.</p>
+            <div class="location-choice-grid">
+              <fieldset class="location-choice" id="startLocationPanel"><legend>Starting point</legend><output id="startLocationSummary" class="location-summary">No start selected</output><div class="location-actions"><button class="chip" type="button" data-geolocate="start">Use my current location</button><button class="chip active" type="button" data-map-target="start" aria-pressed="true">Choose on map</button><button class="chip" type="button" data-clear-location="start">Clear</button></div></fieldset>
+              <fieldset class="location-choice" id="endLocationPanel"><legend>Destination / ending point</legend><output id="endLocationSummary" class="location-summary">Return to start selected</output><div class="location-actions"><button class="chip active" type="button" data-map-target="end" aria-pressed="false">Choose on map</button><button class="chip" type="button" data-clear-location="end">Clear</button></div></fieldset>
+            </div>
+            <label class="return-start-control"><input id="returnToStartInput" type="checkbox" checked> <span data-i18n="planner.returnStart">Return to my starting point</span></label>
+            <details class="coordinate-entry"><summary>Enter coordinates manually</summary><div class="coordinate-grid"><label>Start label<input id="startLabelInput" class="query-input" maxlength="200" placeholder="Place name"></label><label>Latitude<input id="startLatInput" class="query-input" inputmode="decimal" type="number" min="-90" max="90" step="any" placeholder="-90 to 90"></label><label>Longitude<input id="startLngInput" class="query-input" inputmode="decimal" type="number" min="-180" max="180" step="any" placeholder="-180 to 180"></label><label>End label<input id="endLabelInput" class="query-input" maxlength="200" placeholder="Place name"></label><label>Latitude<input id="endLatInput" class="query-input" inputmode="decimal" type="number" min="-90" max="90" step="any" placeholder="-90 to 90"></label><label>Longitude<input id="endLngInput" class="query-input" inputmode="decimal" type="number" min="-180" max="180" step="any" placeholder="-180 to 180"></label></div><p class="location-privacy-note">Address lookup is not configured in this project. A typed place name alone stays unresolved; select its map point or enter its coordinates.</p><button type="button" class="chip" id="applyCoordinatesButton">Use entered coordinates</button></details>
+            <p id="locationPickerMessage" class="location-picker-message" role="status" aria-live="polite">Select which point to place, then click the map. Map tiles are provided by OpenStreetMap.</p>
+            <div id="locationPickerMap" class="location-picker-map" role="region" aria-label="Map to choose start and destination pins"></div>
+          </section>
+
           <div class="input-group">
-            <label for="queryInput">What would you like to experience?</label>
-            <input 
-              type="text" 
-              id="queryInput" 
-              name="query" 
-              class="query-input" 
-              placeholder="e.g. Mujhe local khana khana hai (Hindi / Hinglish / English)"
-              value="Mujhe local authentic khana aur Chanderi weavers dekhna hai"
-              required
+            <label for="queryInput" data-i18n="planner.interests">What would you like to experience?</label>
+            <input
+              type="text"
+              id="queryInput"
+              name="query"
+              class="query-input"
+              placeholder="For example: I’d like to try local food and meet a craftsperson"
+              data-i18n-placeholder="planner.queryPlaceholder"
+              value=""
+              aria-describedby="selectedInterests"
             >
           </div>
 
           <!-- Quick Category Chips -->
-          <div class="chips-container">
-            <span class="chip" data-query="Mujhe traditional Bedai aur Gajak khana hai">🍲 Authentic Culinary (Bedai & Gajak)</span>
-            <span class="chip" data-query="Mujhe Chanderi weavers pit loom dekhna hai">🧵 Chanderi Silk Weavers</span>
-            <span class="chip" data-query="Tansen classical Dhrupad music academy">🎵 Tansen Music Academy</span>
-            <span class="chip" data-query="Sarafa lacquer and silver jewellery artisans">💍 Sarafa Lacquer Jewellery</span>
+          <div class="chips-container interest-options" style="margin-bottom: 8px;" aria-label="Select one or more interests">
+            <button type="button" class="chip" data-interest="Local food" aria-pressed="false">🍲 Local food</button>
+            <button type="button" class="chip" data-interest="Silk weaving" aria-pressed="false">🧵 Silk weaving</button>
+            <button type="button" class="chip" data-interest="Music heritage" aria-pressed="false">🎵 Music heritage</button>
+            <button type="button" class="chip" data-interest="Jewellery crafts" aria-pressed="false">💍 Jewellery crafts</button>
+            <button type="button" class="chip" data-interest="Heritage sites" aria-pressed="false">🏛 Heritage sites</button>
+            <button type="button" class="chip" data-interest="Nature" aria-pressed="false">🌿 Nature</button>
+            <button type="button" class="chip" data-interest="Shopping" aria-pressed="false">🛍 Shopping</button>
+          </div>
+          <p id="selectedInterests" class="selection-summary" aria-live="polite">Selected interests: none yet</p>
+
+          <!-- Companion Selector -->
+          <div style="margin-bottom: 16px;">
+            <div class="choice-label" id="companionLabel">Who’s coming with you?</div>
+            <div id="companionChips" class="chip-row" role="group" aria-labelledby="companionLabel">
+              <button type="button" class="chip active" data-value="solo" aria-pressed="true">👤 Just me</button>
+              <button type="button" class="chip" data-value="couple" aria-pressed="false">👫 Two people</button>
+              <button type="button" class="chip" data-value="family" aria-pressed="false">👨‍👩‍👧 Family with children</button>
+              <button type="button" class="chip" data-value="group" aria-pressed="false">👥 Group</button>
+            </div>
+          </div>
+
+          <!-- Urban Transit Mode Selector -->
+          <div style="margin-bottom: 20px;">
+            <div class="choice-label" id="transitModeLabel">How would you like to get around?</div>
+            <div id="transitModeChips" class="chip-row" role="group" aria-labelledby="transitModeLabel">
+              <button type="button" class="chip active" data-value="auto" aria-pressed="true">🛺 Auto-rickshaw</button>
+              <button type="button" class="chip" data-value="e_rickshaw" aria-pressed="false">⚡ E-rickshaw</button>
+              <button type="button" class="chip" data-value="cab" aria-pressed="false">🚕 Cab</button>
+            </div>
+          </div>
+
+          <div class="input-group" style="margin-bottom: 16px;">
+            <label for="visitDateInput" data-i18n="planner.date">Visit date</label>
+            <input type="date" id="visitDateInput" name="date" class="query-input" value="" required>
+          </div>
+
+          <p id="tripSelectionSummary" class="selection-summary" aria-live="polite"></p>
+          <p id="formError" class="form-error" role="alert" hidden></p>
+
+          <!-- Start Time and Hard Return Deadline Inputs -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="input-group" style="margin-bottom: 0;">
+              <label for="startTimeInput" data-i18n="planner.startTime">Start time</label>
+              <input
+                type="time"
+                id="startTimeInput"
+                name="start_time"
+                class="query-input"
+                value="10:00"
+                required
+              >
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+              <label for="deadlineInput" data-i18n="planner.deadline">I need to be back by</label>
+              <input
+                type="time"
+                id="deadlineInput"
+                name="deadline"
+                class="query-input"
+                value="18:00"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="input-group" style="margin-bottom: 16px;">
+            <label for="budgetInput" data-i18n="planner.budget">Budget limit (optional, INR)</label>
+            <input type="number" id="budgetInput" name="budget" class="query-input" min="0" step="1" placeholder="Leave blank for no budget filter">
           </div>
 
           <!-- Time Budget Slider -->
           <div class="slider-container">
             <div class="slider-header">
-              <label style="margin: 0;">Available Time Window (T_available)</label>
-              <div id="sliderDisplay" class="slider-value">3.0 Hours (180 min)</div>
+              <label for="timeBudgetSlider" style="margin: 0;" data-i18n="planner.available">How much time do you have?</label>
+              <div id="sliderDisplay" class="slider-value">6 hours</div>
             </div>
-            <input 
-              type="range" 
-              id="timeBudgetSlider" 
-              name="time_budget_hours" 
-              min="1.0" 
-              max="8.0" 
-              step="0.5" 
-              value="3.0"
+            <input
+              type="range"
+              id="timeBudgetSlider"
+              name="time_budget_hours"
+              min="1.0"
+              max="8.0"
+              step="0.5"
+              value="6.0"
             >
             <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
-              <span>1.0 Hour (Quick Detour)</span>
-              <span>4.0 Hours (Half Day)</span>
-              <span>8.0 Hours (Full Day)</span>
+              <span>1 hour</span>
+              <span>4 hours</span>
+              <span>8 hours</span>
             </div>
           </div>
 
-          <button type="submit" class="btn-primary">
-            <span>⚡ Verify Deterministic Feasibility</span>
+          <button type="submit" class="btn-primary" id="buildItineraryButton" data-i18n-aria-label="planner.build">
+            <span data-i18n="planner.build">Build my itinerary</span>
           </button>
+          <div id="agentProgress" class="agent-progress" role="status" aria-live="polite" aria-atomic="true" hidden>
+            <span id="agentProgressIcon" class="agent-progress-icon" aria-hidden="true">◎</span>
+            <div class="agent-progress-copy">
+              <p id="agentProgressAgent" class="agent-progress-agent">Manager Agent</p>
+              <p id="agentProgressMessage" class="agent-progress-message">Understanding your travel preferences…</p>
+              <div id="agentProgressTrack" class="agent-progress-track" role="progressbar" aria-label="Planning animation progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <span id="agentProgressFill" class="agent-progress-fill"></span>
+              </div>
+            </div>
+            <span id="agentProgressPercent" class="agent-progress-percent">0%</span>
+          </div>
         </form>
+        <section id="planResult" class="plan-result" aria-live="polite" hidden></section>
       </div>
 
       <!-- Feasibility Architecture Card (Span 4) -->
-      <div class="bento-card bento-col-4" style="background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);">
+      <div class="bento-card bento-col-4 planner-expectation" style="display:none;">
         <div class="pill-badge" style="margin-bottom: 14px;">
-          <span>📐 Mathematical Model</span>
+          <span>🧭 A realistic plan</span>
         </div>
-        <h3>Strict Feasibility Inequality</h3>
+        <h3>Plan with breathing room</h3>
         <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
-          A candidate place is recommended <em>if and only if</em> the total time envelope fits within your schedule:
+          Your suggestions fit the time you have, including travel between places and time to explore.
         </p>
 
         <div style="background: #1E293B; color: #F8FAFC; padding: 14px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; line-height: 1.5; margin-bottom: 16px;">
-          T_outbound + T_return + T_visit + T_buffer &le; T_available
+          Travel time + time to explore + a little extra time
         </div>
 
         <div style="background: var(--accent-coral-light); border: 1px solid #FECDD3; padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #991B1B;">
-          <strong>Mandatory 25% Safety Buffer:</strong><br>
-          T_buffer = 0.25 &times; (T_roundtrip + T_visit)<br>
-          Protects visitors from transit delays.
+          <strong>We leave a 25% time cushion</strong> for a more comfortable day. Travel estimates use typical speeds and do not include live traffic.
         </div>
       </div>
 
-      <!-- System Decoupling Card (Span 12) -->
-      <div class="bento-card bento-col-12">
+      <!-- Visitor-focused explanation -->
+      <div class="bento-card bento-col-12" style="display:none;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
-          <h2>Decoupled 3-Tier System Governance</h2>
+          <h2>What to expect</h2>
           <div class="pill-badge green">
-            <span>Curated Gwalior Pilot: <%= poiCount %> Active Cultural Sites</span>
+            <span><%= poiCount %> places in our Gwalior guide</span>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-          <div style="padding: 16px; background: #F8FAFC; border-radius: 12px; border: 1px solid #E2E8F0;">
-            <div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 6px;">Tier 1: Multilingual AI NLP</div>
+          <div class="expectation-card">
+            <div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 6px;">1. Tell us what you like</div>
             <p style="font-size: 0.9rem; color: var(--text-muted);">
-              <strong>Google Gemini 1.5 Flash</strong> extracts semantic category, origin, and time intent from Hindi/Hinglish text. Gemini is strictly prohibited from inventing places or travel times.
+              Food, music, crafts, or a mix. You can write in English or Hindi.
             </p>
           </div>
 
-          <div style="padding: 16px; background: #F8FAFC; border-radius: 12px; border: 1px solid #E2E8F0;">
-            <div style="font-weight: 700; color: var(--accent-coral); margin-bottom: 6px;">Tier 2: Node.js Math Engine</div>
+          <div class="expectation-card">
+            <div style="font-weight: 700; color: var(--accent-coral); margin-bottom: 6px;">2. Choose your time</div>
             <p style="font-size: 0.9rem; color: var(--text-muted);">
-              Evaluates deterministic travel-space arithmetic, applies the 25% safety buffer, and rigidly prunes candidate POIs that violate schedule boundaries.
+              Set when you start, when you need to return, and how you’ll travel.
             </p>
           </div>
 
-          <div style="padding: 16px; background: #F8FAFC; border-radius: 12px; border: 1px solid #E2E8F0;">
-            <div style="font-weight: 700; color: var(--accent-green); margin-bottom: 6px;">Tier 3: Curated Heritage Data</div>
+          <div class="expectation-card">
+            <div style="font-weight: 700; color: var(--accent-green); margin-bottom: 6px;">3. Get a visit plan</div>
             <p style="font-size: 0.9rem; color: var(--text-muted);">
-              MongoDB geospatial store containing authenticated master weavers, confectioners, and luthiers situated 3&ndash;8 km outside the tourist fort bubble.
+              We’ll suggest places from our local guide and show estimated travel and visit times.
             </p>
           </div>
         </div>
@@ -141,18 +271,13 @@
 
     </div>
 
-    <!-- Footer -->
-    <footer>
-      <div>
-        <strong>Team Venator</strong> (ID: 60358412) • ITM University Gwalior
-      </div>
-      <div>
-        AI Synergy Hackathon 2026 • Theme 04: Tourism Beyond the Fort
-      </div>
-    </footer>
+    </div>
+  </section>
+  </main>
+  <footer class="heritage-footer"><a class="heritage-brand" href="#home"><span class="brand-crest" aria-hidden="true">♜</span><span><strong>Beyond the Fort</strong><small>GWALIOR, INDIA</small></span></a><span>A city best discovered beyond the expected.</span><span>© 2026&nbsp; · &nbsp;MADE FOR THE CURIOUS</span></footer>
 
-  </div>
-
-  <script src="/js/main.js"></script>
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/js/agentProgress.js?v=planner-agents-1"></script>
+  <script src="/js/i18n.js?v=nav-i18n-1"></script><script src="/js/main.js?v=planner-agents-1"></script>
 </body>
 </html>

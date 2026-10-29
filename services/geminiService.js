@@ -15,7 +15,24 @@ class GeminiService {
   constructor() {
     this.apiKey = config.geminiApiKey;
     this.genAI = this.apiKey ? new GoogleGenerativeAI(this.apiKey) : null;
-    this.modelName = 'gemini-1.5-flash';
+    this.modelName = process.env.GEMINI_MODEL || 'gemini-flash-latest';
+  }
+
+  async answerTourismQuestion(query, records, history = [], locale = 'en') {
+    if (!this.genAI) throw new Error('GeminiUnavailable');
+    const localeNames = { en: 'English', hi: 'Hindi', bn: 'Bengali', te: 'Telugu', mr: 'Marathi', ta: 'Tamil', ur: 'Urdu', gu: 'Gujarati', kn: 'Kannada', or: 'Odia', ml: 'Malayalam', pa: 'Punjabi', as: 'Assamese', mai: 'Maithili', sa: 'Sanskrit', ks: 'Kashmiri', fr: 'French', de: 'German', es: 'Spanish', ar: 'Arabic', zh: 'Simplified Chinese' };
+    const responseLanguage = localeNames[locale] || localeNames.en;
+    const safeRecords = records.map(({ id, name, category, description, address, verification_status, source_reference, source_url, operating_hours, min_dwell_time_mins }) => ({ id, name, category, description, address, verification_status, source_reference, source_url, operating_hours, min_dwell_time_mins }));
+    const model = this.genAI.getGenerativeModel({
+      model: this.modelName,
+      systemInstruction: `You are the Beyond the Fort Gwalior tourism assistant. Answer in ${responseLanguage}. Answer based only on the supplied attraction records and conversation. Do not invent facts, fees, hours, routes, or availability. Keep official attraction and historical names unchanged. State when the records do not establish an answer. Mention uncertainty and source status. Keep responses concise.`
+    });
+    const prompt = JSON.stringify({ question: query, recent_conversation: history.slice(-8), attraction_records: safeRecords });
+    const timeoutMs = Number.parseInt(process.env.GEMINI_TIMEOUT_MS, 10) || 60000;
+    const result = await model.generateContent(prompt, { timeout: timeoutMs });
+    const reply = (await result.response).text().trim();
+    if (!reply) throw new Error('GeminiEmptyResponse');
+    return reply;
   }
 
   /**
@@ -56,7 +73,8 @@ JSON SCHEMA:
 
       const prompt = `Visitor query: "${rawQuery}"\nDefault time budget: ${fallbackMinutes} minutes.`;
 
-      const result = await model.generateContent(prompt);
+      const timeoutMs = Number.parseInt(process.env.GEMINI_TIMEOUT_MS, 10) || 60000;
+      const result = await model.generateContent(prompt, { timeout: timeoutMs });
       const response = await result.response;
       const text = response.text().trim();
 
@@ -70,7 +88,8 @@ JSON SCHEMA:
 
       return schemaValidator.validateParsedIntent(parsed).sanitized;
     } catch (err) {
-      console.warn(`[Gemini Service] Live API call failed or timed out (${err.message}). Using deterministic heuristic fallback.`);
+      // Error messages can contain provider URLs or request details; never log them or credentials.
+      console.warn(JSON.stringify({ event: 'provider.fallback', provider: 'gemini', error_type: err?.name || 'ProviderError' }));
       return this.heuristicFallback(rawQuery, fallbackMinutes);
     }
   }

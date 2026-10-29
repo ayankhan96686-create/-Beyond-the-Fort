@@ -1,0 +1,33 @@
+<header class="heritage-nav">
+  <a class="heritage-brand" href="/" aria-label="Beyond the Fort home" data-i18n-aria-label="nav.brandHome">
+    <span class="brand-crest" aria-hidden="true">♜</span>
+    <span class="brand-wordmark"><strong>Beyond the Fort</strong><small data-i18n="brand.subtitle">THE CITY OF MUSIC &amp; LIVING HERITAGE</small></span>
+    <span class="brand-city">GWALIOR</span>
+  </a>
+  <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-controls="primaryNavigation" aria-expanded="false" aria-label="Open navigation menu" data-i18n-aria-label="nav.openMenu">
+    <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <nav id="primaryNavigation" class="heritage-links" aria-label="Main navigation" data-i18n-aria-label="nav.mainNavigation">
+    <a data-nav-page="home" data-i18n="nav.home" href="/#home">Home</a>
+    <a data-nav-page="discover" data-i18n="nav.discover" href="/#discover">Discover</a>
+    <a data-nav-page="planner" data-i18n="nav.planVisit" href="/#trip-planner">Plan your visit</a>
+    <a data-nav-page="chat" class="nav-chat-link" href="/chat"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5v15M2.5 10h15M4.7 4.7l10.6 10.6M15.3 4.7 4.7 15.3"/></svg><span data-i18n="nav.ask">Ask Tansen AI</span></a>
+  </nav>
+  <div class="heritage-nav-actions">
+    <div class="language-picker">
+      <button id="languageTrigger" class="language-trigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="languagePopover" aria-label="Choose language" data-i18n-aria-label="nav.chooseLanguage">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.2"/><path d="M2.9 10h14.2M10 2.8c2 2 3 4.4 3 7.2s-1 5.2-3 7.2c-2-2-3-4.4-3-7.2s1-5.2 3-7.2Z"/></svg><span data-current-locale-code>EN</span><span class="language-trigger-chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div id="languagePopover" class="language-popover" role="dialog" aria-label="Choose your language" data-i18n-aria-label="nav.chooseLanguage" hidden>
+        <div class="language-popover-heading"><div><span class="section-kicker" data-i18n="nav.language">Language</span><strong data-i18n="nav.languageHelp">Choose your display language</strong></div><button id="languageClose" class="language-close" type="button" aria-label="Close language selector" data-i18n-aria-label="nav.closeLanguage">×</button></div>
+        <label class="language-search-wrap"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.7" cy="8.7" r="5.7"/><path d="m13 13 4.2 4.2"/></svg><input id="languageSearch" type="search" data-i18n-placeholder="nav.searchLanguage" placeholder="Search languages…" autocomplete="off"><span class="sr-only" data-i18n="nav.languageSearchLabel">Search by language name</span></label>
+        <p id="languageLoading" class="language-no-results" data-i18n="nav.loadingLanguages" role="status">Loading languages…</p>
+        <div id="languageOptions" class="language-options" role="listbox" aria-label="Available languages" data-i18n-aria-label="nav.availableLanguages"></div>
+        <p id="languageNoResults" class="language-no-results" data-i18n="nav.noLanguages" hidden>No languages found</p>
+        <p class="language-footnote" data-i18n="nav.languageNote">Some longer descriptions may remain in English where a translation is not yet available.</p>
+      </div>
+    </div>
+    <a class="nav-plan-link nav-plan-cta" href="/#trip-planner"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 17.2 10 10 17.5 2.8 10 10 2.5Z"/><path d="M6.5 10h7M10 6.5v7"/></svg><span data-i18n="nav.planCta">Plan a visit</span></a>
+    <button id="themeToggleBtn" type="button" class="theme-toggle-btn" aria-label="Toggle dark mode" data-i18n-aria-label="nav.themeDark"><svg viewBox="0 0 20 20" class="theme-moon" aria-hidden="true"><path d="M16.8 12.3A7 7 0 0 1 7.7 3.2 7.2 7.2 0 1 0 16.8 12.3Z"/></svg><svg viewBox="0 0 20 20" class="theme-sun" aria-hidden="true"><circle cx="10" cy="10" r="3.3"/><path d="M10 1.8v2.1M10 16.1v2.1M1.8 10h2.1M16.1 10h2.1M4.2 4.2l1.5 1.5m8.6 8.6 1.5 1.5m0-11.6-1.5 1.5m-8.6 8.6-1.5 1.5"/></svg></button>
+  </div>
+</header>

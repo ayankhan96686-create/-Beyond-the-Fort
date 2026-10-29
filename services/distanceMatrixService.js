@@ -68,11 +68,11 @@ class DistanceMatrixService {
         distance_km: parseFloat(rawDistanceKm.toFixed(2)),
         outbound_minutes: estimatedMinutes,
         return_minutes: estimatedMinutes,
-        is_verified: !isSimulated && Boolean(this.apiKey),
-        verification_tag: isSimulated || !this.apiKey ? '[Travel-Time Unverified]' : '[Live Transit Matrix]',
-        warning: isSimulated || !this.apiKey
-          ? 'Transit time calculated via calibrated geometric modeling. Live municipal traffic data is unverified.'
-          : null
+        is_verified: false,
+        verification_tag: '[Travel-Time Unverified]',
+        warning: isSimulated
+          ? 'Transit API unavailable. Estimated time used and is unverified. Verify local road conditions before departure.'
+          : 'Transit time calculated via geometric modeling because no live provider is configured.'
       };
     }
 
@@ -81,28 +81,54 @@ class DistanceMatrixService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
 
-      // In production with live key, fetch Distance Matrix API here:
-      // const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin.lat},${origin.lng}&destinations=${destination.lat},${destination.lng}&key=${this.apiKey}`;
-      // const response = await fetch(url, { signal: controller.signal });
+      const params = new URLSearchParams({
+        origins: `${origin.lat},${origin.lng}`,
+        destinations: `${destination.lat},${destination.lng}`,
+        mode: 'driving',
+        key: this.apiKey
+      });
+      const url = `https://maps.googleapis.com/maps/api/distancematrix/json?${params}`;
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) throw new Error(`provider_http_${response.status}`);
+      const payload = await response.json();
+      const element = payload?.rows?.[0]?.elements?.[0];
+      if (payload?.status !== 'OK' || element?.status !== 'OK' ||
+          !Number.isFinite(element?.distance?.value) || !Number.isFinite(element?.duration?.value)) {
+        throw new Error('provider_response_unavailable');
+      }
       clearTimeout(timeoutId);
-
+      const returnParams = new URLSearchParams({
+        origins: `${destination.lat},${destination.lng}`,
+        destinations: `${origin.lat},${origin.lng}`,
+        mode: 'driving',
+        key: this.apiKey
+      });
+      const returnResponse = await fetch(`https://maps.googleapis.com/maps/api/distancematrix/json?${returnParams}`, {
+        signal: AbortSignal.timeout(this.timeoutMs)
+      });
+      if (!returnResponse.ok) throw new Error(`provider_http_${returnResponse.status}`);
+      const returnPayload = await returnResponse.json();
+      const returnElement = returnPayload?.rows?.[0]?.elements?.[0];
+      if (returnPayload?.status !== 'OK' || returnElement?.status !== 'OK' || !Number.isFinite(returnElement?.duration?.value)) {
+        throw new Error('provider_return_response_unavailable');
+      }
       return {
-        distance_km: parseFloat(rawDistanceKm.toFixed(2)),
-        outbound_minutes: estimatedMinutes,
-        return_minutes: estimatedMinutes,
+        distance_km: parseFloat((element.distance.value / 1000).toFixed(2)),
+        outbound_minutes: Math.ceil(element.duration.value / 60),
+        return_minutes: Math.ceil(returnElement.duration.value / 60),
         is_verified: true,
         verification_tag: '[Live Transit Matrix]',
         warning: null
       };
     } catch (err) {
-      console.warn(`[Transit Service] Transit API failed or timed out: ${err.message}. Triggering failsafe.`);
+      console.warn('[Transit Service] Live provider failed or timed out; using an unverified estimate.');
       return {
         distance_km: parseFloat(rawDistanceKm.toFixed(2)),
         outbound_minutes: estimatedMinutes,
         return_minutes: estimatedMinutes,
         is_verified: false,
         verification_tag: '[Travel-Time Unverified]',
-        warning: 'Transit API unavailable. Estimated time used. Verify local road conditions before departure.'
+        warning: 'Transit API unavailable. Estimated time used and is unverified. Verify local road conditions before departure.'
       };
     }
   }
