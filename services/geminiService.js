@@ -17,6 +17,15 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const config = require('../config/env');
 const schemaValidator = require('../utils/schemaValidator');
 
+function createChatAnswer(reply, source, model = null) {
+  return {
+    reply,
+    source,
+    model,
+    toString() { return this.reply; }
+  };
+}
+
 class GeminiService {
   constructor() {
     this.apiKey = config.geminiApiKey;
@@ -65,7 +74,7 @@ class GeminiService {
           });
           const result = await model.generateContent(prompt, { timeout: timeoutMs });
           const reply = (await result.response).text().trim();
-          if (reply) return reply;
+          if (reply) return createChatAnswer(reply, 'gemini', modelCandidate);
         } catch (err) {
           console.warn(JSON.stringify({
             event: 'provider.model_retry',
@@ -79,7 +88,8 @@ class GeminiService {
     }
 
     // Curated Knowledge Fallback when all Gemini cloud calls are exhausted or offline
-    return this.curatedKnowledgeFallback(query, safeRecords, history, locale);
+    const fallbackText = this.curatedKnowledgeFallback(query, safeRecords, history, locale);
+    return createChatAnswer(typeof fallbackText === 'object' ? fallbackText.reply : fallbackText, 'local_knowledge', null);
   }
 
   /**

@@ -1041,6 +1041,9 @@ html[data-theme="dark"] .location-picker-heading p,html[data-theme="dark"] .loca
 .chat-bubble.user { align-self:flex-end; border-color:#702220; background:#702220; color:#fffaf1; }
 .chat-bubble.error { border-color:#d9aaa4; background:#fbefed; color:#702220; }
 .chat-bubble.loading { color:#756d61; }
+.chat-source-badge { display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; padding:2px 7px; border-radius:4px; margin-bottom:6px; }
+.chat-source-badge.local-knowledge { background:rgba(138,92,34,0.14); color:#8a5c22; border:1px solid rgba(138,92,34,0.3); }
+.chat-source-badge.gemini { background:rgba(112,34,32,0.1); color:#702220; border:1px solid rgba(112,34,32,0.25); }
 .chat-status { min-height:0; padding:0 24px; color:#702220; font-size:11px; }
 .chat-input { display:flex; align-items:end; gap:10px; padding:14px 18px max(14px,env(safe-area-inset-bottom)); border-top:1px solid #eee7da; background:#fffdf8; }
 .chat-input textarea { flex:1; min-height:46px; max-height:140px; resize:vertical; padding:12px; border:1px solid #d8cbb7; border-radius:2px; background:#fff; color:#3c2c24; font:13px/1.5 'Plus Jakarta Sans',sans-serif; }
@@ -1082,7 +1085,7 @@ html[data-theme="dark"] .chat-input textarea,html[data-theme="dark"] .trip-field
 @media(max-width:380px) { .chat-heading { gap:8px; }.chat-new { max-width:118px; }.trip-fields { grid-template-columns:1fr; }.trip-fields .trip-note { grid-column:auto; } }
 .btn-primary:disabled { cursor: wait; opacity: .7; }
 .interest-options { display: flex; flex-wrap: wrap; gap: 8px; }
-.subpage-main { width: min(1100px, 88%); min-height: 65vh; margin: 0 auto; padding: 54px 0 90px; }
+.subpage-main { width: min(1200px, 92%); min-height: 65vh; margin: 0 auto; padding: 48px 0 80px; }
 .back-link { display: inline-block; margin-bottom: 28px; color: #702220; font-size: 12px; text-decoration: none; }
 .subpage-title { margin: 8px 0 10px; color: #350d0e; font: 500 clamp(30px, 4vw, 48px)/1.15 'Cinzel', Georgia, serif; }
 .subpage-lede,.muted-copy { color: #756d61; font-size: 14px; line-height: 1.75; }
@@ -1099,8 +1102,9 @@ html[data-theme="dark"] .chat-input textarea,html[data-theme="dark"] .trip-field
 .detail-action:disabled { opacity: .6; cursor: wait; }
 .subsection-title { margin: 0 0 15px; color: #350d0e; font: 500 23px 'Cinzel', Georgia, serif; }
 .itinerary-section { margin: 34px 0; }
-.itinerary-cards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
-.itinerary-card { display: grid; grid-template-columns: minmax(150px, .8fr) 1.2fr; overflow: hidden; border: 1px solid #e7dfd1; background: #fffdf8; }
+.itinerary-cards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+.itinerary-card { display: grid; grid-template-columns: minmax(160px, .85fr) 1.15fr; overflow: hidden; border: 1px solid #e7dfd1; border-radius: 4px; background: #fffdf8; box-shadow: 0 4px 18px rgba(53, 13, 14, 0.04); transition: transform .2s ease, box-shadow .2s ease; }
+.itinerary-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(53, 13, 14, 0.08); }
 .attraction-image-frame { display: grid; min-height: 220px; place-items: center; overflow: hidden; background: #eee5d6; }
 .attraction-image-frame img,.detail-gallery img { width: 100%; height: 100%; min-height: 220px; object-fit: cover; }
 .image-placeholder { display: grid; width: 100%; height: 100%; min-height: 220px; place-items: center; padding: 15px; color: #8a7454; background: repeating-linear-gradient(135deg,#eee5d6,#eee5d6 12px,#e8ddca 12px,#e8ddca 24px); font: 500 10px 'Cinzel',serif; letter-spacing: .12em; text-align: center; }
@@ -1138,9 +1142,9 @@ html[data-theme="dark"] .chat-input textarea,html[data-theme="dark"] .trip-field
 .trip-map-popup { display: grid; gap: 4px; min-width: 140px; color: #3b3028; font: 12px/1.5 'Plus Jakarta Sans',sans-serif; }
 .trip-map-popup strong { font-size: 12px; }
 .trip-map-popup span { color: #756d61; font-size: 11px; }
-.photo-credit { position: absolute; right: 7px; bottom: 7px; max-width: calc(100% - 14px); padding: 5px 7px; overflow: hidden; color: #fff; background: #1b1714c9; font-size: 9px; line-height: 1.4; text-overflow: ellipsis; text-decoration: none; white-space: nowrap; }
-.photo-credit:hover { text-decoration: underline; }
-.image-caption { margin: -5px 0 0; color: #887b68; font-size: 10px; line-height: 1.5; }
+.photo-credit { position: absolute; right: 8px; bottom: 8px; max-width: calc(100% - 16px); padding: 5px 9px; overflow: hidden; color: #fff; background: rgba(27, 23, 20, 0.85); backdrop-filter: blur(4px); border-radius: 3px; font-size: 9px; line-height: 1.4; text-overflow: ellipsis; text-decoration: none; white-space: nowrap; z-index: 2; }
+.photo-credit:hover { text-decoration: underline; background: rgba(27, 23, 20, 0.95); }
+.image-caption { margin: -3px 0 0; color: #887b68; font-size: 11px; font-style: italic; line-height: 1.5; }
 .attraction-image-frame { position: relative; }
 .stop-address { color: #756d61; font-size: 10px; line-height: 1.55; }
 .stop-map-focus { padding: 0; border: 0; color: #702220; background: none; font: 700 11px 'Plus Jakarta Sans',sans-serif; text-align: left; text-decoration: underline; cursor: pointer; }

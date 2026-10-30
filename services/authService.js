@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const emailService = require('./emailService');
 
 const USER_FILE = process.env.AUTH_USERS_FILE || path.join(__dirname, '..', 'data', '.auth-users.json');
 const SESSION_TTL = 12 * 60 * 60 * 1000;
@@ -184,4 +185,124 @@ function setRole(id, role) {
   try { saveUsers(); } catch { user.role = previous; return false; }
   return { id: user.id, email: user.email, role: user.role };
 }
-module.exports = { sessionMiddleware, csrfProtection, requireUser, requireAdmin, register, authenticate, login, logout, updateProfile, setRole, _sessions: sessions, _loginAttempts: loginAttempts, _loadUsers: loadUsers };
+
+async function requestPasswordReset(email, appUrl = '') {
+  const normalized = String(email || '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,254}$/.test(normalized) || normalized.length > 254) {
+    return { code: 'AUTH_EMAIL_INVALID', error: 'Enter a valid email address.' };
+  }
+
+  const lockout = checkLockout(normalized);
+  if (lockout) {
+    return { error: 'AUTH_ACCOUNT_LOCKED', message: `Too many failed attempts. Account locked for ${lockout.minutesLeft} more minute(s).` };
+  }
+
+  // If email service is not configured, fail safely and inform the user
+  if (!emailService.isConfigured()) {
+    return {
+      code: 'EMAIL_NOT_CONFIGURED',
+      error: 'Password reset email service is currently not configured by the administrator. Please contact support.'
+    };
+  }
+
+  const list = loadUsers();
+  const user = list.find(x => x.email === normalized && x.status === 'active');
+  const genericSuccess = {
+    status: 'success',
+    message: 'If an account exists with that email address, a password reset link has been sent.'
+  };
+
+  if (!user) {
+    return genericSuccess;
+  }
+
+  // Generate cryptographically secure random token (64 hex characters)
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+  const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
+
+  user.resetTokenHash = tokenHash;
+  user.resetTokenExpires = expiresAt;
+
+  try {
+    saveUsers();
+  } catch (error) {
+    return { code: 'AUTH_UNAVAILABLE', error: 'Account service is unavailable. Please try again later.' };
+  }
+
+  const baseUrl = process.env.APP_PUBLIC_URL || appUrl || 'http://localhost:3000';
+  const resetUrl = `${baseUrl.replace(/\/$/, '')}/reset-password?token=${rawToken}`;
+
+  try {
+    await emailService.sendPasswordResetEmail(user.email, resetUrl);
+    return genericSuccess;
+  } catch (err) {
+    delete user.resetTokenHash;
+    delete user.resetTokenExpires;
+    try { saveUsers(); } catch {}
+    console.error(JSON.stringify({ event: 'auth.reset_email_failed', error_type: err?.name || 'Error' }));
+    return {
+      code: 'EMAIL_SEND_FAILED',
+      error: 'Unable to send password reset email at this moment. Please try again later.'
+    };
+  }
+}
+
+async function resetPassword(token, newPassword) {
+  if (typeof token !== 'string' || !/^[a-f0-9]{64}$/i.test(token.trim())) {
+    return { code: 'INVALID_TOKEN', error: 'The password reset token is invalid or has expired.' };
+  }
+  const cleanToken = token.trim();
+  const tokenHash = crypto.createHash('sha256').update(cleanToken).digest('hex');
+
+  const list = loadUsers();
+  const now = Date.now();
+  const user = list.find(x => x.resetTokenHash === tokenHash && x.resetTokenExpires && x.resetTokenExpires > now);
+
+  if (!user) {
+    return { code: 'INVALID_OR_EXPIRED_TOKEN', error: 'The password reset link is invalid or has expired. Please request a new one.' };
+  }
+
+  if (typeof newPassword !== 'string' || newPassword.length < 12 || newPassword.length > 128 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword)) {
+    return { code: 'AUTH_PASSWORD_WEAK', error: 'Use 12–128 characters with a lowercase letter, uppercase letter, and number.' };
+  }
+
+  const derived = await derivePassword(newPassword);
+  user.passwordSalt = derived.salt;
+  user.passwordHash = derived.hash;
+  delete user.resetTokenHash;
+  delete user.resetTokenExpires;
+
+  // Invalidate any active sessions for this user
+  for (const [sessToken, sessData] of sessions.entries()) {
+    if (sessData.userId === user.id) {
+      sessions.delete(sessToken);
+    }
+  }
+
+  try {
+    saveUsers();
+  } catch (error) {
+    return { code: 'AUTH_UNAVAILABLE', error: 'Account service is unavailable. Please try again.' };
+  }
+
+  return { status: 'success', message: 'Your password has been reset successfully. You can now sign in with your new password.' };
+}
+
+module.exports = {
+  sessionMiddleware,
+  csrfProtection,
+  requireUser,
+  requireAdmin,
+  register,
+  authenticate,
+  login,
+  logout,
+  updateProfile,
+  setRole,
+  requestPasswordReset,
+  resetPassword,
+  _sessions: sessions,
+  _loginAttempts: loginAttempts,
+  _loadUsers: loadUsers
+};

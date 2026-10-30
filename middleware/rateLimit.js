@@ -15,4 +15,6 @@ function rateLimit({ windowMs = 60_000, max = 60, key = req => `${req.ip || req.
     next();
   };
 }
+rateLimit._buckets = buckets;
+rateLimit.reset = () => buckets.clear();
 module.exports = rateLimit;

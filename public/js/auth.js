@@ -43,4 +43,69 @@
     catch (error) { message.textContent = error.message; message.classList.remove('success'); }
   });
   document.querySelector('#logoutButton')?.addEventListener('click', async () => { await send('/api/auth/logout', 'POST'); sessionStorage.removeItem('beyondFortActiveUser'); sessionStorage.removeItem('beyondFortTrip'); sessionStorage.removeItem('beyondFortPreferences'); sessionStorage.removeItem('beyondFortSavedPlanId'); location.assign('/'); });
+
+  const forgotForm = document.querySelector('#forgotForm');
+  if (forgotForm) forgotForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const msg = document.querySelector('#forgotMessage');
+    const submitBtn = document.querySelector('#forgotSubmit');
+    msg.textContent = '';
+    msg.className = 'auth-message';
+    const email = forgotForm.elements.email.value.trim();
+    if (!email) { msg.textContent = 'Please enter your email address.'; return; }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    try {
+      const res = await send('/api/auth/forgot-password', 'POST', { email });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || messageFor(result));
+      msg.textContent = result.message;
+      msg.className = 'auth-message success';
+      forgotForm.elements.email.disabled = true;
+      submitBtn.style.display = 'none';
+    } catch (err) {
+      msg.textContent = err.message;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Reset Link';
+    }
+  });
+
+  const resetForm = document.querySelector('#resetForm');
+  if (resetForm) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get('token') || resetForm.dataset.token || '';
+    if (!tokenFromUrl) {
+      const msg = document.querySelector('#resetMessage');
+      if (msg) msg.textContent = 'Missing reset token. Please use the link provided in your email.';
+      const btn = document.querySelector('#resetSubmit');
+      if (btn) btn.disabled = true;
+    }
+    resetForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const msg = document.querySelector('#resetMessage');
+      const submitBtn = document.querySelector('#resetSubmit');
+      msg.textContent = '';
+      msg.className = 'auth-message';
+      const token = resetForm.elements.token.value || tokenFromUrl;
+      const password = resetForm.elements.password.value;
+      const confirm = resetForm.elements.confirmPassword.value;
+      if (!token) { msg.textContent = 'Missing or invalid reset token.'; return; }
+      if (password !== confirm) { msg.textContent = 'Passwords do not match.'; return; }
+      if (password.length < 12) { msg.textContent = 'Password must be at least 12 characters long.'; return; }
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Updating...';
+      try {
+        const res = await send('/api/auth/reset-password', 'POST', { token, password });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message || messageFor(result));
+        msg.textContent = result.message || 'Password reset successfully! Redirecting to sign in...';
+        msg.className = 'auth-message success';
+        setTimeout(() => location.assign('/login'), 2500);
+      } catch (err) {
+        msg.textContent = err.message;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Update Password';
+      }
+    });
+  }
 })();

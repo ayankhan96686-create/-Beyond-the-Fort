@@ -5,7 +5,19 @@
   let conversationId = crypto.randomUUID(); let busy = false;
   const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text != null) el.textContent = text; return el; };
   const scroll = () => { messages.scrollTop = messages.scrollHeight; };
-  function addMessage(role, text) { const bubble = node('div', `chat-bubble ${role}`, text); messages.append(bubble); scroll(); return bubble; }
+  function addMessage(role, text, source) {
+    const bubble = node('div', `chat-bubble ${role}`);
+    if (source === 'local_knowledge') {
+      bubble.append(node('span', 'chat-source-badge local-knowledge', '🏛 Verified Cultural Archive'));
+    } else if (source === 'gemini') {
+      bubble.append(node('span', 'chat-source-badge gemini', '✨ AI Assistant (Gemini 3.5 Flash)'));
+    }
+    const content = node('div', 'chat-bubble-text', text);
+    bubble.append(content);
+    messages.append(bubble);
+    scroll();
+    return bubble;
+  }
   function tripRequest() {
     const label = byId('startLabel').value.trim(); const lat = Number(byId('startLat').value); const lng = Number(byId('startLng').value);
     const start_location = label && byId('startLat').value && byId('startLng').value ? { label, latitude: lat, longitude: lng, source: 'manual_coordinates' } : null;
@@ -39,7 +51,7 @@
       const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() }, body: JSON.stringify({ message: text, conversationId, trip: request, locale: window.BeyondI18n?.getLocale() || 'en', ...(intent === 'plan' ? { intent } : {}) }), signal: AbortSignal.timeout(65000) });
       const data = await response.json(); loading.remove();
       if (!response.ok) { addMessage('error', data.message || t('chat.error', 'The service could not complete your request. Please try again.')); return; }
-      addMessage('assistant', data.reply || 'The service returned no reply.');
+      addMessage('assistant', data.reply || 'The service returned no reply.', data.source);
       if (data.result) addResult(data.result, request);
     } catch (error) { loading.remove(); addMessage('error', error.name === 'TimeoutError' ? t('chat.timeout', 'The request timed out. Please try again.') : t('chat.retry', 'Could not reach the tourism service. Check your connection and try again.')); }
     finally { busy = false; input.focus(); }

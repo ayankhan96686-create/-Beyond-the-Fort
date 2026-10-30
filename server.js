@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === 'production') {
 const proxyHops = process.env.TRUST_PROXY_HOPS ? Number(process.env.TRUST_PROXY_HOPS) : 0;
 if (!Number.isInteger(proxyHops) || proxyHops < 0 || proxyHops > 5) throw new Error('TRUST_PROXY_HOPS must be an integer from 0 to 5.');
 app.set('trust proxy', proxyHops || false);
-const authLimiter = rateLimit({ windowMs: 15 * 60_000, max: 10, key: req => `${req.ip}:auth` });
+const authLimiter = rateLimit({ windowMs: 15 * 60_000, max: process.env.NODE_ENV === 'test' ? 1000 : 10, key: req => `${req.ip}:auth` });
 const apiLimiter = rateLimit({ windowMs: 60_000, max: 60 });
 const aiLimiter = rateLimit({ windowMs: 60_000, max: 10 });
 
@@ -84,6 +84,8 @@ app.get('/attractions/:id', (req, res) => res.render('attraction', { title: 'Att
 
 app.get('/login', (req, res) => res.render('auth', { title: 'Sign in | Beyond the Fort', mode: 'login' }));
 app.get('/register', (req, res) => res.render('auth', { title: 'Create account | Beyond the Fort', mode: 'register' }));
+app.get('/forgot-password', (req, res) => res.render('forgot-password', { title: 'Forgot Password | Beyond the Fort' }));
+app.get('/reset-password', (req, res) => res.render('reset-password', { title: 'Reset Password | Beyond the Fort', token: req.query.token || '' }));
 app.get('/account', requirePageUser, (req, res) => res.render('account', { title: 'Your account | Beyond the Fort' }));
 app.get('/admin', requirePageAdmin, (req, res) => res.render('admin', { title: 'Administration | Beyond the Fort' }));
 app.get('/api/auth/csrf', (req, res) => res.json({ csrfToken: req.auth.csrf }));
@@ -111,6 +113,21 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     console.error(JSON.stringify({ event: 'auth.login_failed', error_type: error?.name || 'Error' }));
     return res.status(503).json({ status: 'error', message: 'Account service is unavailable.' });
   }
+});
+app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
+  const email = typeof req.body?.email === 'string' ? req.body.email : '';
+  if (!email.trim()) return res.status(400).json({ status: 'error', message: 'Email address is required.' });
+  const hostUrl = `${req.protocol}://${req.get('host')}`;
+  const result = await auth.requestPasswordReset(email, hostUrl);
+  if (result.error) return res.status(result.code === 'EMAIL_NOT_CONFIGURED' ? 503 : 400).json({ status: 'error', code: result.code, message: result.error });
+  return res.json({ status: 'success', message: result.message });
+});
+app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
+  const { token, password } = req.body || {};
+  if (typeof token !== 'string' || typeof password !== 'string') return res.status(400).json({ status: 'error', message: 'Token and new password are required.' });
+  const result = await auth.resetPassword(token, password);
+  if (result.error) return res.status(400).json({ status: 'error', code: result.code, message: result.error });
+  return res.json({ status: 'success', message: result.message });
 });
 app.post('/api/auth/logout', (req, res) => { auth.logout(req, res); res.json({ status: 'success' }); });
 app.get('/api/auth/me', (req, res) => res.json({ status: 'success', user: req.auth.user || null }));

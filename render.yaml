@@ -1,0 +1,43 @@
+# Render Blueprint Specification for Beyond the Fort
+# Team Venator (ID: 60358412) - AI Synergy Hackathon 2026
+
+services:
+  - type: web
+    name: beyond-the-fort
+    runtime: docker
+    plan: starter
+    region: oregon
+    healthCheckPath: /ready
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: TRUST_PROXY_HOPS
+        value: 1
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: ROUTING_PROVIDER_URL
+        value: https://api.mapbox.com
+      - key: ROUTING_PROVIDER_API_KEY
+        sync: false
+      - key: LANGGRAPH_SERVICE_TOKEN
+        generateValue: true
+      - key: APP_PUBLIC_URL
+        sync: false
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_SECURE
+        value: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false

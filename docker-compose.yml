@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: beyond_the_fort_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - TRUST_PROXY_HOPS=1
+      # Configure secrets in .env file (never commit live keys)
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      - MONGODB_URI=${MONGODB_URI}
+      - ROUTING_PROVIDER_URL=${ROUTING_PROVIDER_URL}
+      - ROUTING_PROVIDER_API_KEY=${ROUTING_PROVIDER_API_KEY}
+      - LANGGRAPH_SERVICE_TOKEN=${LANGGRAPH_SERVICE_TOKEN}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT:-587}
+      - EMAIL_SECURE=${EMAIL_SECURE:-false}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - APP_PUBLIC_URL=${APP_PUBLIC_URL:-http://localhost:3000}
+    volumes:
+      # Persist local user accounts and saved trips across container redeployments
+      - app_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  app_data:
+    driver: local

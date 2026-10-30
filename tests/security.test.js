@@ -130,3 +130,166 @@ test('accounts hash passwords, rotate sessions, enforce roles, CSRF, and itinera
   assert.equal((await user.request('/api/itineraries')).status, 401);
   assert.match(crypto.randomUUID(), /^[0-9a-f-]{36}$/);
 });
+
+test('password reset enforces secure token hashing, expiration, anti-enumeration, session revocation, and unconfigured fallback', async () => {
+  const rateLimit = require('../middleware/rateLimit');
+  rateLimit.reset();
+  const emailService = require('../services/emailService');
+  const authService = require('../services/authService');
+  const guest = client();
+  await guest.request('/api/auth/csrf');
+
+  // Register a user to test password reset
+  const regResp = await guest.request('/api/auth/register', {
+    method: 'POST',
+    body: { email: 'reset-tester@example.test', password: 'InitialPassword123' }
+  });
+  assert.equal(regResp.status, 201);
+
+  // 1. Unconfigured SMTP returns 503 EMAIL_NOT_CONFIGURED
+  const unconfiguredResp = await guest.request('/api/auth/forgot-password', {
+    method: 'POST',
+    body: { email: 'reset-tester@example.test' }
+  });
+  assert.equal(unconfiguredResp.status, 503);
+  const unconfiguredJson = await unconfiguredResp.json();
+  assert.equal(unconfiguredJson.code, 'EMAIL_NOT_CONFIGURED');
+
+  // 2. Mock email service
+  let capturedEmail = null;
+  let capturedResetUrl = null;
+  const originalIsConfigured = emailService.isConfigured;
+  const originalSendEmail = emailService.sendPasswordResetEmail;
+
+  emailService.isConfigured = () => true;
+  emailService.sendPasswordResetEmail = async (to, url) => {
+    capturedEmail = to;
+    capturedResetUrl = url;
+    return { messageId: 'test-msg-123' };
+  };
+
+  try {
+    // 3. Anti-enumeration: unknown email returns 200 with generic message without leaking account absence
+    const unknownResp = await guest.request('/api/auth/forgot-password', {
+      method: 'POST',
+      body: { email: 'nonexistent-user@example.test' }
+    });
+    assert.equal(unknownResp.status, 200);
+    assert.match((await unknownResp.json()).message, /If an account exists/);
+    assert.equal(capturedResetUrl, null); // No email was sent
+
+    // 4. Request reset for valid registered user
+    const validResp = await guest.request('/api/auth/forgot-password', {
+      method: 'POST',
+      body: { email: 'reset-tester@example.test' }
+    });
+    assert.equal(validResp.status, 200);
+    assert.equal(capturedEmail, 'reset-tester@example.test');
+    assert.match(capturedResetUrl, /\/reset-password\?token=[a-f0-9]{64}$/);
+
+    const token = new URL(capturedResetUrl).searchParams.get('token');
+    assert.equal(token.length, 64);
+
+    // 5. Invariant: Plaintext token is NEVER in users.json; only SHA-256 hash
+    const users = JSON.parse(fs.readFileSync(process.env.AUTH_USERS_FILE, 'utf8'));
+    const testUser = users.find(u => u.email === 'reset-tester@example.test');
+    assert.ok(testUser.resetTokenHash);
+    assert.equal(testUser.resetTokenHash.includes(token), false);
+    const expectedHash = crypto.createHash('sha256').update(token).digest('hex');
+    assert.equal(testUser.resetTokenHash, expectedHash);
+    assert.ok(testUser.resetTokenExpires > Date.now());
+
+    // 6. Token validation & weak password rejection
+    const malformedResp = await guest.request('/api/auth/reset-password', {
+      method: 'POST',
+      body: { token: 'invalid-short-token', password: 'BrandNewPassword123' }
+    });
+    assert.equal(malformedResp.status, 400);
+
+    const nonExistentResp = await guest.request('/api/auth/reset-password', {
+      method: 'POST',
+      body: { token: '0'.repeat(64), password: 'BrandNewPassword123' }
+    });
+    assert.equal(nonExistentResp.status, 400);
+
+    const weakPasswordResp = await guest.request('/api/auth/reset-password', {
+      method: 'POST',
+      body: { token, password: 'weak' }
+    });
+    assert.equal(weakPasswordResp.status, 400);
+    assert.equal((await weakPasswordResp.json()).code, 'AUTH_PASSWORD_WEAK');
+
+    // 7. Active session revocation test: user is logged in
+    const activeClient = client();
+    await activeClient.request('/api/auth/csrf');
+    const loginBeforeReset = await activeClient.request('/api/auth/login', {
+      method: 'POST',
+      body: { email: 'reset-tester@example.test', password: 'InitialPassword123' }
+    });
+    assert.equal(loginBeforeReset.status, 200);
+    assert.equal((await activeClient.request('/account')).status, 200);
+
+    // 8. Successful password reset
+    const successReset = await guest.request('/api/auth/reset-password', {
+      method: 'POST',
+      body: { token, password: 'BrandNewSecurePassword#2026' }
+    });
+    assert.equal(successReset.status, 200);
+    assert.match((await successReset.json()).message, /reset successfully/);
+
+    // 9. Invariants after reset:
+    // a) User record has resetTokenHash removed
+    const updatedUsers = JSON.parse(fs.readFileSync(process.env.AUTH_USERS_FILE, 'utf8'));
+    const updatedUser = updatedUsers.find(u => u.email === 'reset-tester@example.test');
+    assert.equal(updatedUser.resetTokenHash, undefined);
+    assert.equal(updatedUser.resetTokenExpires, undefined);
+
+    // b) Previous active session was revoked (cannot access /account)
+    const accessAfterRevoke = await activeClient.request('/account', { redirect: 'manual' });
+    assert.equal(accessAfterRevoke.status, 302);
+
+    // c) Token single-use: reuse rejected
+    await guest.request('/api/auth/csrf');
+    const reuseResp = await guest.request('/api/auth/reset-password', {
+      method: 'POST',
+      body: { token, password: 'AnotherPassword123' }
+    });
+    assert.equal(reuseResp.status, 400);
+
+    // d) Old password rejected
+    const oldLogin = await guest.request('/api/auth/login', {
+      method: 'POST',
+      body: { email: 'reset-tester@example.test', password: 'InitialPassword123' }
+    });
+    assert.equal(oldLogin.status, 401);
+
+    // e) New password accepted
+    const newLogin = await guest.request('/api/auth/login', {
+      method: 'POST',
+      body: { email: 'reset-tester@example.test', password: 'BrandNewSecurePassword#2026' }
+    });
+    assert.equal(newLogin.status, 200);
+
+    // 10. Expired token rejection
+    const expireUserResp = await guest.request('/api/auth/forgot-password', {
+      method: 'POST',
+      body: { email: 'reset-tester@example.test' }
+    });
+    assert.equal(expireUserResp.status, 200);
+    const expiredToken = new URL(capturedResetUrl).searchParams.get('token');
+    
+    // Manually expire the token in memory
+    const u = authService._loadUsers().find(x => x.email === 'reset-tester@example.test');
+    u.resetTokenExpires = Date.now() - 1000; // Expired 1 second ago
+
+    const tryExpired = await guest.request('/api/auth/reset-password', {
+      method: 'POST',
+      body: { token: expiredToken, password: 'YetAnotherPassword123' }
+    });
+    assert.equal(tryExpired.status, 400);
+    assert.equal((await tryExpired.json()).code, 'INVALID_OR_EXPIRED_TOKEN');
+  } finally {
+    emailService.isConfigured = originalIsConfigured;
+    emailService.sendPasswordResetEmail = originalSendEmail;
+  }
+});

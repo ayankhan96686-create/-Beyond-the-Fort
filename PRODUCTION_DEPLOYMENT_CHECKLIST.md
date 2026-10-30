@@ -50,6 +50,13 @@ Ensure all following variables are set in the production environment:
 | `GEMINI_MODEL` | `gemini-3.5-flash` | Pinned high-capacity production model |
 | `ROUTING_PROVIDER_URL` | `https://api.mapbox.com` | Mapbox transit directions provider |
 | `ROUTING_PROVIDER_API_KEY` | Valid token | Mapbox secret token |
+| `APP_PUBLIC_URL` | `https://yourdomain.com` | Public canonical base URL for password reset links |
+| `EMAIL_HOST` | `smtp.example.com` | Production SMTP host (e.g. Amazon SES, SendGrid, Gmail) |
+| `EMAIL_PORT` | `587` | SMTP port (587 for STARTTLS, 465 for SSL) |
+| `EMAIL_SECURE` | `false` | Set to `true` for port 465, `false` for port 587 |
+| `EMAIL_USER` | Valid username | SMTP authentication username |
+| `EMAIL_PASSWORD` | Valid secret | SMTP authentication password / App password |
+| `EMAIL_FROM` | `"Beyond the Fort <no-reply@yourdomain.com>"` | Sender address for transactional emails |
 
 ---
 
@@ -158,8 +165,11 @@ Set your load balancer or uptime monitor (e.g. Datadog, CloudWatch, Prometheus) 
 | :--- | :---: | :--- |
 | Security Headers & CSP | **PASSED** | Verified via `server.js` |
 | CSRF & Session Isolation | **PASSED** | Verified via `tests/security.test.js` |
-| Gemini Chatbot Resilience | **PASSED** | Verified via `AI_CHATBOT_ROOT_CAUSE_REPORT.md` |
+| Password Reset & Email Security | **PASSED** | Verified via `tests/security.test.js` (64-char token, SHA-256 hash, 1h expiration) |
+| Gemini Chatbot Resilience | **PASSED** | Verified via `AI_CHATBOT_ROOT_CAUSE_REPORT.md` (Live + Local Archive Badge) |
 | 6-Agent LangGraph Planner | **PASSED** | Verified via `AI_AGENT_EXECUTION_REPORT.md` |
-| Automated Test Suites | **PASSED** | **24/24 Node tests + 58/58 Python tests** |
+| Automated Test Suites | **PASSED** | **25/25 Node tests + 58/58 Python tests (100% PASS)** |
 | Zero-Downtime DB Fallback | **PASSED** | Tested against Atlas cluster + local dataset |
+| Authentic POI Image Quality | **PASSED** | 12/12 POIs with Wikimedia Commons assets, credits & CC licenses |
+| Cloud Deployment Ready | **PASSED** | Verified with `Dockerfile`, `docker-compose.yml`, `render.yaml`, `ecosystem.config.js`, `nginx.conf` |
 

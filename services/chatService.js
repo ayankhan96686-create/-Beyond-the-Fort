@@ -53,10 +53,13 @@ async function send(req, res) {
     return res.status(result.status === 'provider_error' ? 503 : 200).json({ status: result.status || 'success', conversationId, reply, result: ['feasible', 'infeasible', 'needs_input'].includes(result.status) ? result : null, actions: result.status === 'feasible' ? { itinerary: '/itinerary', map: '/itinerary#tripMap' } : {} });
   }
   try {
-    const reply = await gemini.answerTourismQuestion(userMessage, db.getAllPOIs(), history, locale);
+    const result = await gemini.answerTourismQuestion(userMessage, db.getAllPOIs(), history, locale);
+    const reply = typeof result === 'object' && result !== null ? result.reply : String(result);
+    const source = typeof result === 'object' && result !== null ? (result.source || 'gemini') : 'gemini';
+    const model = typeof result === 'object' && result !== null ? result.model : null;
     history.push({ role: 'user', text: userMessage }, { role: 'assistant', text: reply });
     session.conversations.set(conversationId, history.slice(-20));
-    return res.json({ status: 'success', conversationId, reply, suggestions: ['What heritage places are in the dataset?', 'Plan a visit to Gwalior Fort', 'What are the entry fees?'] });
+    return res.json({ status: 'success', conversationId, reply, source, model, suggestions: ['What heritage places are in the dataset?', 'Plan a visit to Gwalior Fort', 'What are the entry fees?'] });
   } catch (error) {
     const timeoutMs = Number.parseInt(process.env.GEMINI_TIMEOUT_MS, 10) || 60000;
     const timedOut = /timeout|timed out|abort/i.test(String(error?.message || ''));

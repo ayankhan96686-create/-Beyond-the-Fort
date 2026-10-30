@@ -59,11 +59,20 @@ class DatabaseService {
         const recordsToSeed = this.memoryStore.map(item => ({ ...item }));
         await this.collection.insertMany(recordsToSeed);
         console.log(`[DB Layer] Successfully seeded MongoDB Atlas collection 'pois' with ${recordsToSeed.length} curated records.`);
-      } else {
+      } else if (this.memoryStore.length > 0) {
+        // Sync local authoritative records with Atlas to keep metadata, images, and hours fresh
+        const ops = this.memoryStore.map(item => ({
+          updateOne: {
+            filter: { id: item.id },
+            update: { $set: { ...item } },
+            upsert: true
+          }
+        }));
+        await this.collection.bulkWrite(ops);
         const remoteRecords = await this.collection.find({}, { projection: { _id: 0 } }).toArray();
         if (remoteRecords.length > 0) {
           this.memoryStore = remoteRecords;
-          console.log(`[DB Layer] Connected to MongoDB Atlas. Synced ${remoteRecords.length} POIs from cloud cluster.`);
+          console.log(`[DB Layer] Connected to MongoDB Atlas. Synced & updated ${remoteRecords.length} POIs with cloud cluster.`);
         }
       }
 
