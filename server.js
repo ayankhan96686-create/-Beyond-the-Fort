@@ -202,7 +202,7 @@ app.get('/api/v1/pois', apiLimiter, (req, res) => {
   });
 });
 app.get('/api/v1/attractions/:id', apiLimiter, (req, res) => {
-  const attraction = db.getAllPOIs().find(poi => poi.id === req.params.id);
+  const attraction = db.getAttractionById ? db.getAttractionById(req.params.id) : db.getAllPOIs().find(poi => poi.id === req.params.id);
   if (!attraction) return res.status(404).json({ status: 'not_found', message: 'This attraction is not in the curated Gwalior dataset.' });
   return res.json({ status: 'success', data: attraction });
 });

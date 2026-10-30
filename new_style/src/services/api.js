@@ -7,8 +7,8 @@ export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\
 
 let cachedCsrfToken = null;
 
-export async function getCsrfToken() {
-  if (cachedCsrfToken) return cachedCsrfToken;
+export async function getCsrfToken(forceRefresh = false) {
+  if (cachedCsrfToken && !forceRefresh) return cachedCsrfToken;
   try {
     const res = await fetch(`${API_BASE_URL}/api/auth/csrf`, {
       method: 'GET',
@@ -25,7 +25,8 @@ export async function getCsrfToken() {
   return '';
 }
 
-export async function sendChatMessage(message, language = 'en') {
+export async function sendChatMessage(message, language = 'en', conversationId = null) {
+  const convId = conversationId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `conv-${Date.now()}`);
   const csrf = await getCsrfToken();
   const res = await fetch(`${API_BASE_URL}/api/chat`, {
     method: 'POST',
@@ -34,7 +35,7 @@ export async function sendChatMessage(message, language = 'en') {
       ...(csrf ? { 'X-CSRF-Token': csrf } : {})
     },
     credentials: 'include',
-    body: JSON.stringify({ message, language })
+    body: JSON.stringify({ message, language, conversationId: convId })
   });
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
@@ -58,6 +59,8 @@ export async function loginUser(email, password) {
   if (!res.ok || data.status !== 'success') {
     throw new Error(data.message || 'Login failed');
   }
+  cachedCsrfToken = null;
+  await getCsrfToken(true);
   return data;
 }
 
@@ -76,6 +79,8 @@ export async function registerUser(email, password) {
   if (!res.ok || data.status !== 'success') {
     throw new Error(data.message || 'Registration failed');
   }
+  cachedCsrfToken = null;
+  await getCsrfToken(true);
   return data;
 }
 
@@ -93,6 +98,17 @@ export async function logoutUser() {
 }
 
 export async function planItinerary(payload) {
+  const today = new Date().toISOString().slice(0, 10);
+  const fullPayload = {
+    city: 'Gwalior',
+    date: today,
+    start_time: '10:00',
+    deadline: '18:00',
+    available_minutes: 240,
+    transport_mode: 'cab',
+    companion: 'solo',
+    ...payload
+  };
   const csrf = await getCsrfToken();
   const res = await fetch(`${API_BASE_URL}/api/v1/tourism-plan`, {
     method: 'POST',
@@ -101,7 +117,7 @@ export async function planItinerary(payload) {
       ...(csrf ? { 'X-CSRF-Token': csrf } : {})
     },
     credentials: 'include',
-    body: JSON.stringify(payload)
+    body: JSON.stringify(fullPayload)
   });
   const data = await res.json();
   if (!res.ok) {
@@ -116,6 +132,15 @@ export async function fetchCuratedPOIs() {
     credentials: 'include'
   });
   if (!res.ok) throw new Error('Could not fetch POIs');
+  return await res.json();
+}
+
+export async function fetchAttractionById(id) {
+  const res = await fetch(`${API_BASE_URL}/api/v1/attractions/${encodeURIComponent(id)}`, {
+    method: 'GET',
+    credentials: 'include'
+  });
+  if (!res.ok) throw new Error('Attraction not found');
   return await res.json();
 }
 

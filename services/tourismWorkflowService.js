@@ -6,14 +6,15 @@ class TourismWorkflowClient {
     const query = rawInput.query || rawInput.user_query || '';
     if (!String(query).trim() && rawInput.direct_route_only !== true) return { statusCode: 400, status: 'needs_input', missing_fields: ['interests'], error: 'Please specify the experiences you are interested in.' };
     const duration = rawInput.available_minutes ?? (rawInput.duration_hours || rawInput.time_budget_hours) * 60;
+    const today = new Date().toISOString().slice(0, 10);
     const payload = {
       user_query: query,
       interests: rawInput.interests || [query],
-      city: rawInput.city,
-      date: rawInput.date,
-      start_time: rawInput.start_time,
-      available_minutes: duration,
-      deadline: rawInput.deadline || rawInput.return_deadline,
+      city: rawInput.city || 'Gwalior',
+      date: rawInput.date || today,
+      start_time: rawInput.start_time || '10:00',
+      available_minutes: duration || 240,
+      deadline: rawInput.deadline || rawInput.return_deadline || '18:00',
       return_location: rawInput.return_location,
       return_location_coordinates: rawInput.return_location_coordinates || rawInput.origin,
       start_location: rawInput.start_location,

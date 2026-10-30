@@ -11,7 +11,7 @@ import {
 
 import { LANGUAGES_LIST, TRANSLATIONS } from './translations';
 import { generateTansenAIResponse, getLocalizedWelcomeMessage } from './aiConcierge';
-import { sendChatMessage, API_BASE_URL } from './services/api';
+import { sendChatMessage, loginUser, registerUser, logoutUser, API_BASE_URL } from './services/api';
 
 // ========================================================
 // DATA DEFINITION: GWALIOR HERITAGE SPOTS (36 Curated Places)
@@ -1188,13 +1188,28 @@ export default function App() {
     }, 450);
   };
 
-  const handleEmailAuth = (e) => {
+  const handleEmailAuth = async (e) => {
     e.preventDefault();
     if (!emailInput || !passwordInput) {
       setAuthError('Please fill in both email and password.');
       return;
     }
     const displayName = nameInput.trim() || 'Royal Explorer';
+    try {
+      if (API_BASE_URL) {
+        if (authMode === 'signup') {
+          await registerUser(emailInput, passwordInput);
+        } else {
+          await loginUser(emailInput, passwordInput);
+        }
+      }
+    } catch (err) {
+      console.warn('[Auth] Live auth notice:', err.message);
+      if (err.message && !err.message.includes('fetch') && !err.message.includes('NetworkError') && !err.message.includes('Failed to fetch')) {
+        setAuthError(err.message);
+        return;
+      }
+    }
     setUserAuth({
       isLoggedIn: true,
       name: displayName,
@@ -1231,7 +1246,12 @@ export default function App() {
     });
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    try {
+      if (API_BASE_URL) {
+        await logoutUser();
+      }
+    } catch (_) {}
     setUserAuth({
       isLoggedIn: false,
       name: 'Royal Guest',

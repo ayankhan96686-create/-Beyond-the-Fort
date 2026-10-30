@@ -119,3 +119,4 @@ All automated prechecks have completed with **zero blocking errors**. The applic
 2. **Railway (Service 2):** Node.js Express backend gateway (Root repository)
 3. **Vercel:** Vite React frontend (`new_style/`)
 4. **MongoDB Atlas:** Cloud database (`tourism_gwalior.pois` live cluster)
+

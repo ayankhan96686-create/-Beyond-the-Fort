@@ -16,3 +16,4 @@ ENV PYTHONUNBUFFERED=1 \
 EXPOSE 8000
 
 CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 1 --timeout 120 server:app"]
+

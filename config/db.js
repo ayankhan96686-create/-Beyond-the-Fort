@@ -89,6 +89,37 @@ class DatabaseService {
     return this.memoryStore;
   }
 
+  getAttractionById(id) {
+    if (!id) return null;
+    const direct = this.memoryStore.find(poi => poi.id === id);
+    if (direct) return direct;
+    try {
+      const suppPath = path.join(__dirname, '..', 'data', 'beyond_the_fort_places.json');
+      if (fs.existsSync(suppPath)) {
+        if (!this.suppCache) {
+          this.suppCache = JSON.parse(fs.readFileSync(suppPath, 'utf-8'));
+        }
+        const item = this.suppCache.find(x => x.id === id);
+        if (item) {
+          return {
+            id: item.id,
+            name: item.name,
+            category: item.category || 'heritage',
+            description: item.sourceSearch || item.address || 'Verified cultural attraction in Gwalior.',
+            coordinates: { lat: item.latitude, lng: item.longitude },
+            city: item.city || 'Gwalior',
+            address: item.address,
+            operating_hours: item.openingHours,
+            rating: item.rating,
+            review_count: item.reviewCount,
+            source_reference: 'Beyond the Fort Verified Places'
+          };
+        }
+      }
+    } catch {}
+    return null;
+  }
+
   async close() {
     if (this.client) {
       try {

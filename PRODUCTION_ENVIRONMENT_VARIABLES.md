@@ -86,3 +86,4 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 - [x] Vercel environment variables contain strictly `VITE_API_BASE_URL`.
 - [x] Express backend CORS explicitly lists the Vercel production origin (`FRONTEND_ORIGINS`).
 - [x] Python AI service `/plan` endpoint requires `Bearer <LANGGRAPH_SERVICE_TOKEN>`.
+
