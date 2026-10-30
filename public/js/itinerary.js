@@ -1,7 +1,8 @@
 (() => {
   const root = document.getElementById('itineraryContent');
   if (!root) return;
-  const trip = (() => { try { return JSON.parse(sessionStorage.getItem('beyondFortTrip') || 'null'); } catch { return null; } })();
+  const activeUser = document.body.dataset.userId || 'guest';
+  const trip = (() => { try { return sessionStorage.getItem('beyondFortActiveUser') === activeUser ? JSON.parse(sessionStorage.getItem('beyondFortTrip') || 'null') : null; } catch { return null; } })();
   const element = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text != null) node.textContent = text; return node; };
   const link = (href, text, className = '') => { const a = element('a', className, text); a.href = href; return a; };
   if (!trip?.itinerary) {
@@ -34,10 +35,16 @@
   const regenerate = element('button', 'detail-action', '↻ Regenerate itinerary'); regenerate.type = 'button'; regenerate.addEventListener('click', async () => {
     regenerate.disabled = true; regenerate.textContent = 'Rebuilding…';
     try {
-      const response = await fetch('/api/v1/tourism-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request), signal: AbortSignal.timeout(50000) });
+      const response = await fetch('/api/v1/tourism-plan', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': decodeURIComponent(document.cookie.split('; ').find(x => x.startsWith('beyond_fort_csrf='))?.split('=').slice(1).join('=') || '') }, body: JSON.stringify(request), signal: AbortSignal.timeout(50000) });
       const next = await response.json();
       if (!response.ok || !['feasible', 'infeasible'].includes(next.status)) throw new Error(next.errors?.join(' ') || 'Planning service unavailable.');
-      sessionStorage.setItem('beyondFortTrip', JSON.stringify({ request, itinerary: next })); location.reload();
+      sessionStorage.setItem('beyondFortTrip', JSON.stringify({ request, itinerary: next }));
+      const savedId = sessionStorage.getItem('beyondFortSavedPlanId');
+      if (savedId) {
+        const savedResponse = await fetch(`/api/itineraries/${encodeURIComponent(savedId)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': decodeURIComponent(document.cookie.split('; ').find(x => x.startsWith('beyond_fort_csrf='))?.split('=').slice(1).join('=') || '') }, body: JSON.stringify({ request, itinerary: next }) });
+        if (!savedResponse.ok) throw new Error('The saved itinerary could not be updated.');
+      }
+      location.reload();
     } catch (error) { const message = element('p', 'form-error', `Could not regenerate: ${error.message}`); actions.after(message); }
     finally { regenerate.disabled = false; regenerate.textContent = '↻ Regenerate itinerary'; }
   });

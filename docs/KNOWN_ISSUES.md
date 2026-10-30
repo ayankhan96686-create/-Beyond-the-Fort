@@ -18,3 +18,17 @@ Evidence-backed issues remaining after the audit. `Status` uses PASS, FAIL, BLOC
 | P3 / PASS | Python test suite output. | 13 LangSmith deprecation warnings from the installed dependency stack; no test failure. | Track upstream package compatibility separately; no dependency upgrade was made in this audit. |
 
 The active Express, Flask, LangGraph, Mapbox route, local test, and Vite build checks are documented in [TESTING_AND_REPAIR_LOG.md](TESTING_AND_REPAIR_LOG.md).
+
+## Security/auth update — 2026-10-30
+
+| Severity / status | Issue | Impact / action |
+| --- | --- | --- |
+| P1 / BLOCKED | A prior project audit says a Gemini key may have been pasted into a chat; rotation is unverified. | Rotate the credential in the provider console and replace the local secret. No key value is reproduced here. |
+| P2 / NOT TESTED | Production file ACLs, shared-session behavior, and restore procedure. | Current account/itinerary stores support one process only; inspect deployment permissions and test restore before production. |
+| P2 / NOT IMPLEMENTED | Password reset, email verification, MFA, and account deletion. | No mail service or second-factor provider is configured. |
+| P2 / PARTIAL | New-style Vite prototype contains simulated client-side auth handlers. | It is not the active Express/EJS frontend or an authorization boundary; do not deploy those handlers as real authentication. |
+| P2 / PARTIAL | Authentication strings fall back to English in non-English locales. | Existing localization loader is connected, but auth translations have not been populated for all 21 catalogs. |
+| P2 / NOT TESTED | Adversarial prompt-injection testing and independent penetration review. | Prompt injection remains a model risk; no elimination claim is made. |
+| P2 / FIXED | Initial `npm audit` reported vulnerable `body-parser` and `qs` transitive versions. | `npm audit fix` updated compatible lockfile versions; final audit reported zero vulnerabilities. |
+
+The newest run of `npm test` and Python workflow tests is recorded in [FINAL_SECURITY_AND_AUTH_REPORT.md](../FINAL_SECURITY_AND_AUTH_REPORT.md). Historical rows above retain their original audit context.

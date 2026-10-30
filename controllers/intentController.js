@@ -18,7 +18,26 @@ class IntentController {
         });
       }
 
-      const defaultMinutes = req.body.fallback_minutes || 180;
+      if (query.length > 1000) {
+        return res.status(400).json({
+          status: 'error',
+          code: 'INVALID_QUERY_LENGTH',
+          message: 'Field "query" must be 1000 characters or fewer.'
+        });
+      }
+
+      let defaultMinutes = 180;
+      if (req.body.fallback_minutes !== undefined) {
+        const parsed = Number(req.body.fallback_minutes);
+        if (Number.isNaN(parsed) || parsed < 30 || parsed > 600) {
+          return res.status(400).json({
+            status: 'error',
+            code: 'INVALID_FALLBACK_MINUTES',
+            message: 'Field "fallback_minutes" must be a number between 30 and 600.'
+          });
+        }
+        defaultMinutes = parsed;
+      }
       const parsedIntent = await geminiService.extractIntent(query, defaultMinutes);
 
       res.status(200).json({

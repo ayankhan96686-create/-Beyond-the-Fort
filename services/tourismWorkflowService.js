@@ -41,7 +41,9 @@ class TourismWorkflowClient {
       if (!['http:', 'https:'].includes(url.protocol)) { reject(new Error('Unsupported API protocol')); return; }
       const transport = url.protocol === 'https:' ? require('https') : http;
       const data = JSON.stringify(payload);
-      const req = transport.request({ hostname: url.hostname, port: url.port || (url.protocol === 'https:' ? 443 : 80), path: `${url.pathname}${url.search}`, method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }, timeout: timeoutMs }, res => {
+      const headers = { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) };
+      if (config.langgraphServiceToken) headers.Authorization = `Bearer ${config.langgraphServiceToken}`;
+      const req = transport.request({ hostname: url.hostname, port: url.port || (url.protocol === 'https:' ? 443 : 80), path: `${url.pathname}${url.search}`, method: 'POST', headers, timeout: timeoutMs }, res => {
         let body = ''; res.on('data', chunk => body += chunk); res.on('end', () => {
           try { const parsed = JSON.parse(body); if (res.statusCode >= 200 && res.statusCode < 300) resolve(parsed); else reject(new Error(parsed.errors?.join('; ') || `API returned ${res.statusCode}`)); }
           catch (e) { reject(e instanceof SyntaxError ? new Error('Invalid JSON from tourism API') : e); }

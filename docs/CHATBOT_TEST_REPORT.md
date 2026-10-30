@@ -1,5 +1,7 @@
 # Chatbot Test Report
 
+> The rows below are the earlier chatbot checkpoint. The latest auth/CSRF/chat tests are recorded in the security checkpoint at the end of [TESTING_AND_REPAIR_LOG.md](TESTING_AND_REPAIR_LOG.md).
+
 Date: 2026-10-30
 
 ## Implementation under test
@@ -28,3 +30,5 @@ The chat page is served by Express/EJS at `/chat`. Ordinary questions use the co
 ## Commands
 
 Run `node --test tests/acceptanceTests.test.js` for the Express suite. Run `.venv\Scripts\python.exe -m pytest -q multiagent-engine -m "not integration"` for deterministic planner tests. Run the live Gemini integration only when provider access/quota are available; it may incur provider usage. See [TESTING_AND_REPAIR_LOG.md](TESTING_AND_REPAIR_LOG.md) for the separate planner and provider results.
+
+The chat session cookie is now `beyond_fort_chat`, distinct from the login cookie. Public tourism questions remain available to guests; chat planning intent requires a registered user and all chat POSTs require CSRF validation.

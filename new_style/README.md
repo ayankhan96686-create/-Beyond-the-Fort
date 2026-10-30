@@ -1,5 +1,7 @@
 # React + Vite
 
+> This is a separate UI prototype, not the active Express application. Its current account/OAuth handlers are simulated client-side states and do not authenticate with the server. Do not use them to protect data or represent a successful sign-in. The active registration and authorization flow is the Express site described in the repository-root [AUTHENTICATION.md](../AUTHENTICATION.md).
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

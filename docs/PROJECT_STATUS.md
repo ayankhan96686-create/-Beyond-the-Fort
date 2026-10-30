@@ -1,5 +1,7 @@
 # Project Status
 
+> Historical feature and runtime rows below describe the prior 2026-10-30 application audit. The security/auth implementation was added later the same day; consult [FINAL_SECURITY_AND_AUTH_REPORT.md](../FINAL_SECURITY_AND_AUTH_REPORT.md) for current tests and limits.
+
 Audit date: 2026-10-30. Repository: `Time-Aware-Digital-Discoverability-Beyond-the-Fort`, branch `main`, baseline revision `55eb4ce`.
 
 ## Current status

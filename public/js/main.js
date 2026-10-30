@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const activeUser = document.body.dataset.userId || 'guest';
+  if (sessionStorage.getItem('beyondFortActiveUser') !== activeUser) {
+    sessionStorage.removeItem('beyondFortTrip');
+    sessionStorage.removeItem('beyondFortPreferences');
+    sessionStorage.setItem('beyondFortActiveUser', activeUser);
+  }
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const themeToggleBtn = $('#themeToggleBtn');
@@ -249,9 +255,10 @@ document.addEventListener('DOMContentLoaded', () => {
     result.hidden = true;
     try {
       const response = await fetch('/api/v1/tourism-plan', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: AbortSignal.timeout(50000)
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': decodeURIComponent(document.cookie.split('; ').find(x => x.startsWith('beyond_fort_csrf='))?.split('=').slice(1).join('=') || '') }, body: JSON.stringify(payload), signal: AbortSignal.timeout(50000)
       });
       const itinerary = await response.json();
+      if (response.status === 401) { location.assign('/login'); return; }
       agentProgress.stop();
       if (!response.ok || !itinerary || !['feasible', 'infeasible', 'needs_input', 'provider_error'].includes(itinerary.status)) {
         throw new Error(itinerary.errors?.join(' ') || itinerary.error || `The planning service returned status ${response.status}.`);
@@ -260,6 +267,16 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error([...(itinerary.errors || []), ...(itinerary.missing_fields || [])].join(' ') || 'The planning service could not validate this request.');
       }
       sessionStorage.setItem('beyondFortTrip', JSON.stringify({ request: payload, itinerary }));
+      sessionStorage.setItem('beyondFortActiveUser', document.body.dataset.userId || 'guest');
+      sessionStorage.removeItem('beyondFortSavedPlanId');
+      if (itinerary.status === 'feasible') {
+        try {
+          const savedResponse = await fetch('/api/itineraries', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': decodeURIComponent(document.cookie.split('; ').find(x => x.startsWith('beyond_fort_csrf='))?.split('=').slice(1).join('=') || '') }, body: JSON.stringify({ request: payload, itinerary }) });
+          const savedResult = await savedResponse.json();
+          if (savedResponse.ok) sessionStorage.setItem('beyondFortSavedPlanId', savedResult.data.id);
+          else sessionStorage.removeItem('beyondFortSavedPlanId');
+        } catch { sessionStorage.removeItem('beyondFortSavedPlanId'); }
+      }
       window.location.assign('/itinerary');
     } catch (error) {
       agentProgress.stop();

@@ -37,4 +37,25 @@ Inventory checked on 2026-10-30. This lists all project Markdown documents in th
 | `archive/README.md` | Reversible archive policy. | current | Yes |
 | `archive/removed-items/MANIFEST.md` | Archive inventory; records that no files moved. | current | Yes |
 
-No document was deleted. Earlier test reports and the dataset/design briefs remain available with their historical status made explicit. The unreferenced n8n workflow JSON and user-generated output are not Markdown and remain in place pending owner review; see [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+## Security and operations guides added 2026-10-30
+
+| Relative path | Purpose | Classification | Updated |
+| --- | --- | --- | --- |
+| `SECURITY.md` | Vulnerability reporting and credential handling. | current | Yes |
+| `AUTHENTICATION.md` | Registration, password hashing, sessions, logout and recovery limits. | current | Yes |
+| `AUTHORIZATION.md` | Roles, access matrix and admin bootstrap. | current | Yes |
+| `API_DOCUMENTATION.md` | Endpoint auth, validation, limits and contracts. | current | Yes |
+| `SECURITY_AUDIT.md` | Findings, severity, impact and remediation. | current | Yes |
+| `FINAL_SECURITY_AND_AUTH_REPORT.md` | Final findings, tests, residual risk and file inventory. | current | Yes |
+| `DATABASE_SECURITY.md` | Data stores, ownership checks and storage limits. | current | Yes |
+| `AI_AGENT_SECURITY.md` | LangGraph/Gemini controls and residual prompt-injection risk. | current | Yes |
+| `ENVIRONMENT_SETUP.md` | Current environment configuration. | current | Yes |
+| `DEPLOYMENT.md` | Production requirements and deployment limits. | current | Yes |
+| `BACKUP_AND_RECOVERY.md` | Manual account and itinerary recovery procedure. | current | Yes |
+| `PRIVACY_POLICY.md` | Actual collection, provider use, retention and deletion. | implementation summary | Yes |
+| `USER_GUIDE.md` | Registration, language, chatbot and itinerary instructions. | current | Yes |
+| `ADMIN_GUIDE.md` | Administrator bootstrap and operations. | current | Yes |
+| `TESTING.md` | Commands and security test scope. | current | Yes |
+| `CHANGELOG.md` | Summary of the security/auth implementation. | current | Yes |
+
+No document was deleted or archived. Earlier test reports and dataset/design briefs remain available; historical outcomes describe their audit date and are not current security evidence. The unreferenced n8n workflow JSON and user-generated output are not Markdown and remain in place pending owner review; see [KNOWN_ISSUES.md](KNOWN_ISSUES.md).

@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node --test tests/acceptanceTests.test.js tests/agentProgress.test.js tests/i18n.test.js"
+    "test": "node --test tests/acceptanceTests.test.js tests/agentProgress.test.js tests/i18n.test.js tests/security.test.js",
+    "start:all": "node scripts/start-all.js",
+    "dev:all": "node scripts/start-all.js"
   },
   "keywords": [
     "hackathon",
@@ -24,6 +26,7 @@
     "@google/generative-ai": "^0.24.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "mongodb": "^7.7.0"
   }
 }

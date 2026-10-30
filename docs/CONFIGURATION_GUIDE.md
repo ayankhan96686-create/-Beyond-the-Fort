@@ -12,8 +12,13 @@ Do not put provider keys in `public/`, `new_style/src/`, browser requests, scree
 | --- | --- | --- | --- |
 | `PORT` | Node `config/env.js` | Express port; default `3000`. | Configured in `.env`; live processes were started on 3000 and 3001. |
 | `HOST` | Express `server.js` and Flask `server.py` | Bind address; default `127.0.0.1`. Use `0.0.0.0` only where a deployment container requires it. | Optional. |
-| `FRONTEND_ORIGINS` | Express `server.js` | Comma-separated CORS origin allowlist for separately hosted frontend clients. EJS same-origin requests need no CORS. | Defaults to localhost Vite origins on port 5173. |
+| `FRONTEND_ORIGINS` | Express `server.js` | Exact comma-separated origins for separately hosted frontend clients. EJS same-origin requests need no CORS. | Localhost Vite defaults apply only outside production. Production accepts HTTPS exact origins and rejects wildcard. |
 | `LANGGRAPH_API_URL` | Node `config/env.js` / workflow proxy | Flask plan URL; default `http://127.0.0.1:8000/plan`. | Missing locally; default is used. |
+| `LANGGRAPH_SERVICE_TOKEN` | Node proxy and Flask server | Shared private bearer token protecting production planner calls; minimum 32 characters. | Must be configured for production. |
+| `AUTH_USERS_FILE` | Express auth | Account records, password hashes, roles. Use durable private writable storage. | Production requires an explicit path. |
+| `SAVED_ITINERARIES_FILE` | Express itinerary store | Owner-scoped saved-plan records. Use durable private writable storage. | Production requires an explicit path. |
+| `INITIAL_ADMIN_EMAIL` | Express auth | Optional first-admin bootstrap email; remove after registering the first matching account. | Optional; otherwise admin APIs remain inaccessible. |
+| `TRUST_PROXY_HOPS` | Express | Exact number of trusted reverse proxies, integer 0–5; default 0. | Set only behind known proxy chain. |
 | `LANGGRAPH_PORT` | Flask `server.py` | Flask port; default `8000`. | Missing locally; default is used. |
 | `GEMINI_API_KEY` | Node `config/env.js`, `services/geminiService.js` | Server-side Gemini tourism answers and legacy intent parser. | Configured; prior live request timed out and fell back. |
 | `GEMINI_MODEL` | Node `services/geminiService.js` | Model override; default `gemini-flash-latest`. | Missing from `.env`; default applies unless process environment overrides it. |
@@ -28,7 +33,7 @@ Do not put provider keys in `public/`, `new_style/src/`, browser requests, scree
 | `TRANSIT_API_TIMEOUT_MS` | Node `config/env.js` / legacy transit path | Legacy provider timeout; default `3000` ms. | Configured in `.env`; exact value withheld. |
 | `SAFETY_BUFFER_RATIO` | Node `config/env.js` / legacy feasibility path | Legacy math setting; default `0.25`. The LangGraph itinerary node currently uses its own fixed `0.25`. | Configured in `.env`; exact value withheld. |
 | `MONGODB_URI` | Node `config/env.js` / `config/db.js` | Reserved/configured string only; no Mongo driver or application adapter exists. | Configured but unused for persistence. |
-| `NODE_ENV` | Node config and Flask trace visibility | Flask omits `execution_trace` when set to `production`; otherwise includes it. | Configured in `.env`; exact value withheld. |
+| `NODE_ENV` | Express and Flask | `production` enables Secure cookies, HSTS, explicit CORS policy, Flask bearer auth, and hides Flask execution traces. | Set only in a properly configured deployment. |
 | `LOG_LEVEL` | Python `server.py` | Python logging level; default `INFO`. | Missing from `.env`; default applies unless process environment overrides it. |
 
 ## Provider setup and troubleshooting
@@ -39,6 +44,8 @@ Do not put provider keys in `public/`, `new_style/src/`, browser requests, scree
 - **Gemini:** configure `GEMINI_API_KEY` and optionally `GEMINI_MODEL` / `GEMINI_TIMEOUT_MS`. A key-authenticated model-list request succeeded, and one live generation completed in about 38 seconds; later chat requests exceeded the 60-second server limit without an HTTP response. Generation remains intermittent despite the 60-second server / 65-second browser limits.
 - **Demo:** only set `DEMO_MODE=true` for tests or presentations. Responses label these routes as synthetic/inference. Missing provider in normal mode yields `provider_error`.
 - **MongoDB:** setting `MONGODB_URI` does not connect the app to a database. The current app loads local JSON. Do not make Mongo required unless an adapter is implemented.
+- **Account persistence:** account and itinerary JSON files are ignored by Git. Restrict access to the app identity and backups. This implementation supports one writer process and has no transactional database or multi-host coordination.
+- **Email:** no delivery provider is configured. Password reset and verification are not implemented.
 - **Express-to-Flask:** if Express reports the planner unavailable, check `LANGGRAPH_API_URL`, Flask port, and `GET /health` on both services. The planner bridge timeout is 45 seconds; the browser allows 50 seconds. Directed route requests run in a bounded pool (default 8 workers); provider rate limits can still constrain larger plans.
 
 Current configuration presence was checked without displaying values. See [TESTING_AND_REPAIR_LOG.md](TESTING_AND_REPAIR_LOG.md) for exact provider results.

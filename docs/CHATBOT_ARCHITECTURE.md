@@ -23,9 +23,9 @@ flowchart LR
 
 ## Conversation and location handling
 
-Express issues an `HttpOnly`, `SameSite=Lax` session cookie and keeps conversations in process memory. Conversation history is isolated by that cookie and conversation ID, capped at 20 messages per conversation, and expires after 12 hours of inactivity. The in-memory map is bounded to 10,000 active sessions; expired sessions are removed when a session is accessed. Restarting Express clears all chat history. There is no user account or database persistence.
+Express issues a dedicated `beyond_fort_chat` HttpOnly, SameSite=Lax cookie for chat state, separate from the authentication cookie. Conversation history is isolated by that cookie and conversation ID, capped at 20 messages per conversation, and expires after 12 hours of inactivity. The in-memory map is bounded to 10,000 active sessions; expired sessions are removed when a session is accessed. Restarting Express clears all chat history. Tourism questions remain public; planning intent requires a registered user. Chat POSTs require CSRF validation.
 
-The browser asks for geolocation only after the visitor presses **Use my current location**. A typed address or place name is not geocoded: the visitor needs coordinates from manual entry or the existing planner's map pin. Location is sent to the planner only as part of a requested plan. The configured route provider receives the coordinates needed to calculate directions. No unrelated service is called with location data. Coordinates and the resulting itinerary are stored in the current tab's `sessionStorage` for the itinerary/map page.
+The browser asks for geolocation only after the visitor presses **Use my current location**. A typed address or place name is not geocoded: the visitor needs coordinates from manual entry or the existing planner's map pin. Location is sent to the planner only as part of a requested plan; the configured route provider receives coordinates needed for directions. The current tab holds the active map view in `sessionStorage`; successfully generated itineraries are also saved to a private local JSON file scoped to the registered user, expire after 365 days, and can be deleted from Account. This file stores the submitted location coordinates and requires restricted access and backups.
 
 ## Evidence and failures
 

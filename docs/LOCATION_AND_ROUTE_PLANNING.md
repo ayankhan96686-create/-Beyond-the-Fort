@@ -12,7 +12,7 @@ The Plan Your Visit form supports three ways to set coordinates:
 
 “Return to my starting point” is selected initially. When enabled, the endpoint sent to the API is a copy of the selected start coordinates. When disabled, an independent end point is required. Changing either point requires submitting a fresh plan; the saved itinerary is tab-local.
 
-Location is not continuously tracked. The chosen coordinates are held with the itinerary in this tab's `sessionStorage` and sent to the backend only for planning. There is no account or server-side itinerary persistence. Clear this tab's site data/session storage to remove the saved itinerary and coordinates. Application logs summarize route counts and do not include endpoint coordinates.
+Location is not continuously tracked. The chosen coordinates are held with the active itinerary in this tab's `sessionStorage` and sent to the backend only for planning. A feasible plan is also saved to the signed-in user's private itinerary file, which includes request coordinates and can be removed from the Account page. Those saved records expire after 365 days when the store is accessed. Application logs summarize route counts and do not include endpoint coordinates. Account and retention details are in [PRIVACY_POLICY.md](../PRIVACY_POLICY.md).
 
 ## API location shape
 
@@ -30,6 +30,8 @@ Location is not continuously tracked. The chosen coordinates are held with the i
 `latitude` must be finite and between -90 and 90; `longitude` must be finite and between -180 and 180. `source` supports `browser_geolocation`, `map_pin`, `manual_coordinates`, `manual_geocoded`, and the backward-compatible `legacy_config`. Optional `place_id`, accuracy and capture time are validated/retained. The server does not treat these values as proof that an attraction claim is verified.
 
 `start_location`, `end_location`, and `return_to_start` pass through Express `POST /api/v1/tourism-plan` to Flask `POST /plan`. Legacy callers using `return_location_coordinates` or `origin` remain supported and default to return-to-start. The response carries the normalized endpoints and return choice.
+
+Planner POSTs require a registered Express session and CSRF header. In production the Flask planner also requires a service bearer token; direct Flask access should remain private. See [API_DOCUMENTATION.md](../API_DOCUMENTATION.md).
 
 ## Address lookup status
 

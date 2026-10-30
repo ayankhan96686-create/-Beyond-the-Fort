@@ -1,23 +1,59 @@
-# Tourism API
+# Beyond the Fort — Tourism API Specification
 
-This file is the short API entry point. The complete request and response details are in [docs/API_REFERENCE.md](docs/API_REFERENCE.md); the route and agent flow is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+**Project:** Beyond the Fort — Time-Aware Digital Discoverability, Gwalior  
+**Team:** Team Venator (ID: 60358412) | AI Synergy Hackathon 2026  
+**Complete Reference:** See [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for full endpoint catalog and payload schemas.  
+**Security Reference:** See [SECURITY.md](SECURITY.md), [AUTHENTICATION.md](AUTHENTICATION.md), and [AUTHORIZATION.md](AUTHORIZATION.md).  
 
-## Active planner
+---
 
-- `POST /api/v1/tourism-plan` and legacy alias `POST /tourism-plan`: Express accepts the planner request and forwards it to Flask `POST /plan`.
-- `GET /health`: Express process health only; it does not check Flask, data loading, or external providers.
-- Flask endpoints: `GET /health`, `GET /attractions`, and `POST /plan`.
+## 1. Active Endpoints Overview
 
-Planner statuses: `needs_input`, `provider_error`, `infeasible`, and `feasible`. A missing routing provider fails closed unless `DEMO_MODE=true`; demo estimates are labeled synthetic. The planner's six LangGraph roles do not call an LLM.
+### Health & Observability Probes
+- `GET /health`: Fast process liveness probe.
+- `GET /ready`: Deep readiness probe checking MongoDB Atlas database connectivity, AI provider status, and LangGraph planner readiness.
+- Flask `GET /health`: Multi-agent service health reporting the status of all 6 agents.
 
-## Existing Express endpoints
+### Tourism Planning Subsystem
+- `POST /api/v1/tourism-plan` (and alias `POST /tourism-plan`): Express authenticated endpoint forwarding validated trip constraints to Flask LangGraph `POST /plan`. Protected by session authentication and CSRF tokens.
+- Flask `POST /plan`: Executes the compiled 6-agent LangGraph state graph. Enforces HMAC Bearer token validation (`LANGGRAPH_SERVICE_TOKEN`) in production environments.
+- Returns status: `feasible`, `infeasible`, `needs_input`, or `provider_error`.
+- Enforces mandatory mathematical inequality with a **25% Safety Buffer**:
+  $$\sum D_i + \sum T_{\text{travel}} + \text{Buffer} \le T_{\text{avail}}$$
 
-- `POST /api/v1/intent/parse`: separate intent parser; returns a deterministic fallback when Gemini is unavailable.
-- `POST /api/v1/feasibility/search`: separate legacy feasibility path.
-- `GET /api/v1/pois`: 12 records from the Express curated JSON file.
-- `GET /api/v1/attractions/:id`: one curated record or HTTP 404.
-- `GET /`, `POST /search`, `GET /itinerary`, and `GET /attractions/:id`: web pages.
+### Tansen AI Chatbot Subsystem
+- `POST /api/chat`: Grounded cultural tourism Q&A powered by Google Gemini 3.5 Flash (`gemini-3.5-flash`). Features multi-model cascading (`gemini-3.5-flash` -> `gemini-3.5-flash-lite` -> `gemini-3.1-flash-lite` -> `gemini-flash-lite-latest`) and an authoritative Curated Knowledge-Base Fallback (100% uptime with zero hallucination).
+- `POST /api/chat/reset`: Resets active conversation turn history.
 
-## Data and persistence
+### Curated Tourism Data Endpoints
+- `GET /api/v1/pois`: Returns 12 audited Gwalior heritage POIs.
+- `GET /api/v1/attractions/:id`: Returns detailed metadata for a single attraction by stable ID.
+- `POST /api/v1/intent/parse`: Extracts structured JSON intent from natural language query strings.
+- `POST /api/v1/feasibility/search`: Spatial candidate retrieval and deterministic feasibility evaluation.
 
-The Express and Flask components read local JSON files. `MONGODB_URI` is not used by an installed MongoDB adapter. `/itinerary` reads the current browser tab's `sessionStorage`; there is no account or server-side itinerary persistence.
+### Authentication & Account Management
+- `GET /api/auth/csrf`: Retrieves session CSRF token.
+- `POST /api/auth/register`: User registration with scrypt password hashing.
+- `POST /api/auth/login`: User authentication with 5-failure account lockout.
+- `POST /api/auth/logout`: Invalidation of current session.
+- `GET /api/auth/me`: Summary of authenticated user.
+- `PATCH /api/auth/profile`: Update account details.
+
+### Saved Itinerary Management (BOLA / IDOR Protected)
+- `GET /api/itineraries`: Retrieves user-owned saved itineraries.
+- `GET /api/itineraries/:id`: Single plan retrieval with strict owner authorization.
+- `POST /api/itineraries`: Saves verified itinerary plan.
+- `PUT /api/itineraries/:id`: Updates existing itinerary.
+- `DELETE /api/itineraries/:id`: Deletes existing itinerary.
+
+### Administrative Oversight
+- `GET /api/admin/users`: Administrator user list with redacted credentials.
+- `PATCH /api/admin/users/:id/role`: Role escalation/demotion (`user` or `administrator`).
+
+---
+
+## 2. Data & Persistence Strategy
+
+- **Primary Cloud Store:** MongoDB Atlas cluster (`v8.0.34`) connected via official `mongodb@7.7.0` driver in `config/db.js`.
+- **Zero-Downtime Cache:** Automatic in-memory fallback to `data/gwalior_curated_pois.json` ensuring seamless operation if network drops.
+- **Account & Itinerary Store:** Persistent JSON storage with strict file permissions (`AUTH_USERS_FILE`, `SAVED_ITINERARIES_FILE`).

@@ -23,7 +23,7 @@ Same-origin Express endpoint. JSON request:
 }
 ```
 
-`message` is required, trimmed, and limited to 2,000 characters. The JSON body parser is limited to 16 KiB. `conversationId` must match `^[\\w-]{1,80}$`. The server issues an `HttpOnly; SameSite=Lax` session cookie; the ID alone does not grant access to another browser's conversation. `trip` is used only when routing a planning request. Coordinates are validated by the existing Manager agent. Omitting a required start/end location produces `needs_input`; the server does not infer a route origin.
+`message` is required, trimmed, and limited to 2,000 characters. The JSON body parser is limited to 16 KiB. `conversationId` must match `^[\\w-]{1,80}$`. The server issues an `HttpOnly; SameSite=Lax` `beyond_fort_chat` cookie, separate from the authentication session; the conversation ID alone does not grant access to another browser's history. Every POST requires the CSRF cookie/header pair. Tourism questions are public; plan-intent requests require a registered-user session. `trip` is used only when routing a planning request. Coordinates are validated by the Manager agent. Omitting a required start/end location produces `needs_input`; the server does not infer a route origin.
 
 Question response:
 

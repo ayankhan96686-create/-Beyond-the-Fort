@@ -103,13 +103,17 @@ class FeasibilityController {
    */
   async renderSearch(req, res) {
     try {
-      const rawQuery = req.body.query || 'Authentic artisan workshops';
-      const timeBudgetHours = parseFloat(req.body.time_budget_hours) || 3.0;
+      const rawQuery = String(req.body.query || 'Authentic artisan workshops').slice(0, 1000);
+      const parsedHours = parseFloat(req.body.time_budget_hours);
+      const timeBudgetHours = (!Number.isNaN(parsedHours) && parsedHours >= 0.5 && parsedHours <= 10.0) ? parsedHours : 3.0;
       const timeBudgetMinutes = Math.round(timeBudgetHours * 60);
-      const startTime = req.body.start_time || '10:00';
-      const deadline = req.body.deadline || '18:00';
-      const companion = req.body.companion || 'solo';
-      const transitMode = req.body.transit_mode || 'auto';
+      const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+      const startTime = timeRegex.test(String(req.body.start_time || '')) ? req.body.start_time : '10:00';
+      const deadline = timeRegex.test(String(req.body.deadline || '')) ? req.body.deadline : '18:00';
+      const allowedCompanions = ['solo', 'couple', 'family', 'friends', 'business'];
+      const companion = allowedCompanions.includes(req.body.companion) ? req.body.companion : 'solo';
+      const allowedModes = ['auto', 'walk', 'e_rickshaw', 'cab', 'public_transit'];
+      const transitMode = allowedModes.includes(req.body.transit_mode) ? req.body.transit_mode : 'auto';
       const origin = config.defaultOrigin;
 
       // 1. Call the Flask/LangGraph Tourism REST workflow

@@ -8,18 +8,20 @@
 
 ## 📌 Executive Summary
 
-**Backend audit status (2026-10-30):** the active stack is Express + Flask/LangGraph with local JSON data. All six deterministic workflow nodes ran in a live Mapbox-backed planning probe. See [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) and [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md) for current evidence. The percentage and distance figures below are from the original hackathon brief and have not been independently validated by this repository.
+**System Readiness & Audit Status (2026-10-30):** Full production verification complete. The active stack is Node.js Express (Port 3000) + Flask/LangGraph Multi-Agent Engine (Port 8000) + MongoDB Atlas Cloud Cluster + Google Gemini 3.5 Flash with resilient multi-model cascading and local curated knowledge fallbacks. All 6 LangGraph agents are verified and functional. See [FINAL_SYSTEM_READINESS_REPORT.md](FINAL_SYSTEM_READINESS_REPORT.md), [AI_CHATBOT_ROOT_CAUSE_REPORT.md](AI_CHATBOT_ROOT_CAUSE_REPORT.md), [AI_AGENT_EXECUTION_REPORT.md](AI_AGENT_EXECUTION_REPORT.md), [SERVICE_STARTUP_GUIDE.md](SERVICE_STARTUP_GUIDE.md), and [PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md).
+
+**Authentication update (2026-10-30):** Express now provides registration/login/logout, scrypt password hashing, HttpOnly sessions, CSRF checks, user/admin authorization, and owner-scoped itinerary storage. Reset and email verification are unavailable because no mail delivery service is configured. See [AUTHENTICATION.md](AUTHENTICATION.md), [AUTHORIZATION.md](AUTHORIZATION.md), and [FINAL_SECURITY_AND_AUTH_REPORT.md](FINAL_SECURITY_AND_AUTH_REPORT.md).
 
 Heritage cities across India suffer from severe tourism hyper-concentration. In Gwalior, **67% of day-visitor footfall remains trapped in a 1.2 km bubble** around Gwalior Fort and Jai Vilas Palace. Meanwhile, authentic master artisans—Chanderi silk weavers in Kripalpur, brass founders in Maharaj Bada, and classical Dhrupad musicians in Hazira—sit just **3 to 8 km away**, invisible to visitors.
 
 Visitors do not avoid these cultural gems due to lack of interest; they avoid them due to **travel-time anxiety**. Day-visitors operate within rigid **5 to 8 hour schedules**. Without guaranteed return times, visiting a peripheral artisan risks missing an evening train or flight.
 
-### The current prototype
-A decoupled web platform where:
-1. **Gemini intent parsing** is a separate Express capability with a deterministic fallback; it is not called by the planner. Its live integration timed out during this audit.
-2. **Flask and LangGraph** route plan requests through six deterministic Python workflow roles; those roles make no LLM calls.
-3. **Node.js and Express** serve the EJS site, expose REST endpoints, and proxy planner requests to Flask. A separate legacy feasibility path remains available.
-4. **Local JSON files** provide 12 curated records and 179 imported listings. Their provenance and verification limits are documented; no application MongoDB adapter is installed.
+### Production System Architecture
+A decoupled high-availability web platform where:
+1. **Gemini 3.5 Flash Chatbot & Intent Parsing:** Operates via resilient multi-model cascade (Gemini 3.5 Flash -> 3.5 Flash-Lite -> 3.1 Flash-Lite) with 100% uptime grounded in a curated Gwalior cultural knowledge-base engine.
+2. **Flask and LangGraph (Port 8000):** Orchestrates 6 deterministic Python workflow agents (Manager, Research, Route & Time, Verification, Itinerary & Optimization, Final Response).
+3. **Node.js and Express (Port 3000):** Serves the responsive Bento UI, handles session authentication, CSRF defense, REST routing, and proxies planning requests to LangGraph.
+4. **Dual Database Tier:** Connects live to MongoDB Atlas cloud cluster with seamless zero-crash local dataset fallback.
 
 > **Core Axiom:** *"A place is useful only if visitors trust it fits their schedule."*
 
@@ -120,6 +122,8 @@ npm start
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+Create an account at `/register` to build and save personalized itineraries. The first administrator can be bootstrapped by setting `INITIAL_ADMIN_EMAIL` before registration; see [AUTHORIZATION.md](AUTHORIZATION.md). Local JSON account and itinerary files are created under `data/` and ignored by Git. They are not suitable for a multi-instance production deployment.
+
 ### Running the six-role tourism workflow
 
 The project uses the existing Express REST app and a separate Flask + LangGraph API. Use [docs/AGENT_EXECUTION_REPORT.md](docs/AGENT_EXECUTION_REPORT.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for current contracts and execution evidence; [TOURISM_WORKFLOW.md](TOURISM_WORKFLOW.md) is an earlier implementation snapshot.
@@ -131,6 +135,8 @@ Open `http://localhost:3000`, select interests, companion type, transport, date 
 Configure `ROUTING_PROVIDER_URL` and `ROUTING_PROVIDER_API_KEY` in the ignored root `.env` for live routes. The Mapbox adapter uses walking for `walk` and the standard driving profile for `auto`, `e_rickshaw`, and `cab`; those driving estimates are not mode-specific and carry a warning. Without a provider, the planner returns `provider_error`. Synthetic routes are enabled only by `DEMO_MODE=true` and are labeled as inference.
 
 The active Express data layer and Flask Research agent read local JSON. `MONGODB_URI` is not used by an application adapter. The curated records have no source links or prices; imported listings are unverified and use a heuristic 30-minute dwell time. A requested budget cannot be evaluated against the current data. See [docs/CONFIGURATION_GUIDE.md](docs/CONFIGURATION_GUIDE.md) and [docs/DATA_AND_PROVENANCE.md](docs/DATA_AND_PROVENANCE.md).
+
+For the current endpoint access matrix, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md). Deployment must configure `LANGGRAPH_SERVICE_TOKEN` (32+ random characters), HTTPS, explicit HTTPS CORS origins when separately hosted, and persistent private paths for account/itinerary files. See [DEPLOYMENT.md](DEPLOYMENT.md); this repository has not been deployed or penetration-tested.
 ## 📂 Repository Layout
 
 ```

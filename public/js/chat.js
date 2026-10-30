@@ -36,7 +36,7 @@
     const loading = addMessage('assistant loading', t('chat.loading', 'Checking available information…'));
     try {
       const request = tripRequest();
-      const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, conversationId, trip: request, locale: window.BeyondI18n?.getLocale() || 'en', ...(intent === 'plan' ? { intent } : {}) }), signal: AbortSignal.timeout(65000) });
+      const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() }, body: JSON.stringify({ message: text, conversationId, trip: request, locale: window.BeyondI18n?.getLocale() || 'en', ...(intent === 'plan' ? { intent } : {}) }), signal: AbortSignal.timeout(65000) });
       const data = await response.json(); loading.remove();
       if (!response.ok) { addMessage('error', data.message || t('chat.error', 'The service could not complete your request. Please try again.')); return; }
       addMessage('assistant', data.reply || 'The service returned no reply.');
@@ -53,6 +53,7 @@
     status.textContent = 'Waiting for your location permission…';
     navigator.geolocation.getCurrentPosition(position => { byId('startLat').value = position.coords.latitude; byId('startLng').value = position.coords.longitude; byId('startLabel').value = 'My current location'; status.textContent = 'Starting point set for this conversation.'; }, error => { status.textContent = error.code === 1 ? 'Location permission was denied. Enter your starting coordinates manually.' : 'Location is unavailable. Enter your starting coordinates manually.'; }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
   });
-  byId('newChat').addEventListener('click', async () => { try { await fetch('/api/chat/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversationId }) }); } catch {} conversationId = crypto.randomUUID(); messages.replaceChildren(addMessage('assistant', t('chat.welcome', 'A new conversation is ready. What would you like to discover?'))); byId('chatStatus').textContent = ''; });
+  byId('newChat').addEventListener('click', async () => { try { await fetch('/api/chat/reset', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() }, body: JSON.stringify({ conversationId }) }); } catch {} conversationId = crypto.randomUUID(); messages.replaceChildren(addMessage('assistant', t('chat.welcome', 'A new conversation is ready. What would you like to discover?'))); byId('chatStatus').textContent = ''; });
+  function csrfToken() { return decodeURIComponent(document.cookie.split('; ').find(x => x.startsWith('beyond_fort_csrf='))?.split('=').slice(1).join('=') || ''); }
   const d = new Date(); byId('visitDate').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 })();

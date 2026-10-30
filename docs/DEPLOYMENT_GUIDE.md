@@ -2,44 +2,43 @@
 
 Updated: 2026-10-30
 
-## Current hosting state
+## Current state
 
-The repository has no checked-in Docker, cloud-hosting, or reverse-proxy deployment configuration. The validated application stack is Express/EJS on Node and the existing Flask/LangGraph process. The browser calls Express; Express calls Flask over `LANGGRAPH_API_URL`. Keep both APIs on the same private network or host. Do not expose Flask publicly unless a deployment explicitly needs it and adds suitable access controls.
+The repository has no checked-in cloud, container, reverse-proxy, or production deployment configuration. No production deployment was made or verified. The application is Express/EJS on Node plus a separate Flask/LangGraph process. Run Flask on a private interface or network; production `POST /plan` also checks a shared service token.
 
-## Environment
+## Required production configuration
 
-Set secrets in the hosting provider's secret manager, not in frontend files or source control:
+Set secrets through the platform secret manager. Do not commit `.env` files or copy provider credentials into browser source.
 
-- `NODE_ENV=production` enables the secure session cookie flag.
-- `PORT` is the Express listener port; default `3000`.
-- `HOST` controls both listeners; default `127.0.0.1`. Set `HOST=0.0.0.0` only when a container/platform requires binding its assigned network interface.
-- `LANGGRAPH_PORT` is the Flask port; default `8000`.
-- `LANGGRAPH_API_URL` points Express to Flask, normally `http://127.0.0.1:8000/plan` on one host.
-- `GEMINI_API_KEY` is read by the Express service only; optionally set `GEMINI_MODEL` and `GEMINI_TIMEOUT_MS`.
-- `ROUTING_PROVIDER_URL`, `ROUTING_PROVIDER_API_KEY`, and optional `ROUTING_PROVIDER_TIMEOUT_SECONDS` configure the Python route provider. Without a live provider, normal planning must return an unavailable/error status; `DEMO_MODE=true` is for explicitly synthetic demos only.
-- `FRONTEND_ORIGINS` is an optional comma-separated allowlist for a separately hosted frontend. Same-origin EJS does not need it.
+- `NODE_ENV=production` enables Secure session cookies and HSTS and turns on production configuration checks.
+- `LANGGRAPH_SERVICE_TOKEN` must be a randomly generated value of at least 32 characters. Configure the same value for Node and Flask; never reuse a provider API key.
+- `AUTH_USERS_FILE` and `SAVED_ITINERARIES_FILE` must point to durable private writable storage. Restrict OS access to the service account and backups. JSON persistence supports one writer process; do not horizontally scale this version.
+- `FRONTEND_ORIGINS` can be empty for same-origin EJS. If a separate client is used, list its exact HTTPS origins, comma-separated. Wildcards and HTTP origins are rejected in production.
+- Configure `LANGGRAPH_API_URL` to a private Flask URL, `HOST` and ports according to the platform, and the required Gemini/routing provider credentials if those capabilities are enabled.
+- Set `TRUST_PROXY_HOPS` only to the exact number of trusted reverse proxies in front of Express (0–5). Never trust arbitrary forwarded headers.
+- Set `INITIAL_ADMIN_EMAIL` before the first matching account is registered. Only the first matching registration becomes administrator; clear the bootstrap setting afterward. If no administrator is bootstrapped, no account can use the admin API.
 
-See [`.env.example`](../.env.example) and [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) for all current variables. Never copy real keys into browser code. Public deployments must use HTTPS, protect provider credentials, and restrict access to the Flask endpoint.
+Terminate public TLS at a correctly configured reverse proxy, forward HTTPS only, protect the Flask port from public access, and use restrictive file and backup permissions. Production cookie `Secure` does not itself configure HTTPS. The app currently lacks shared session storage, a database transaction layer, automated backup jobs, and a deployment health/readiness probe.
 
 ## Local startup
 
-From the repository root, use two terminals:
+From the repository root, create `.env` from `.env.example` only if no local file exists. Install the existing Node and Python requirements, then run one process per terminal:
 
 ```powershell
-$env:LANGGRAPH_PORT = '8000'
-..venvScriptspython.exe .multiagent-engineserver.py
+npm install
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
 ```powershell
-$env:PORT = '3000'
-$env:LANGGRAPH_API_URL = 'http://127.0.0.1:8000/plan'
-node .server.js
+node server.js
 ```
 
-Open `http://127.0.0.1:3000/chat`. The Express `/health` endpoint checks only Express. Check Flask separately at `http://127.0.0.1:8000/health`.
+```powershell
+.\.venv\Scripts\python.exe .\multiagent-engine\server.py
+```
 
-For a separate frontend origin, set `FRONTEND_ORIGINS` to its exact HTTPS origin(s) and configure the browser's API base URL in an explicit deployment change; the current chat client uses same-origin relative paths. Cross-site cookie deployments also require an explicit secure cookie/CORS policy and are not claimed as supported by this implementation.
+Browse to `http://127.0.0.1:3000`. `/health` checks only Express; Flask `/health` checks only Flask. Public read-only attraction routes do not require an account. Registration is available at `/register`.
 
-## Deployment readiness
+## Operational limitations
 
-No cloud deployment was made or verified. Before deployment, choose a platform that can run both services (or provide private service-to-service networking), supply secure secrets, configure health checks for both processes, and verify the host's binding/port contract. The app uses in-memory chat history, so each process restart clears conversations and horizontal replicas do not share them.
+Chat history and login sessions are in process memory and clear on restart. Account and saved-plan data persist only if their configured storage paths are durable. JSON files have no multi-process locking or recovery automation. Back up both files together with restrictive access; see [BACKUP_AND_RECOVERY.md](../BACKUP_AND_RECOVERY.md). Password reset and email verification are not available without a configured delivery service. Review [SECURITY.md](../SECURITY.md) and [FINAL_SECURITY_AND_AUTH_REPORT.md](../FINAL_SECURITY_AND_AUTH_REPORT.md) before exposing the service publicly.

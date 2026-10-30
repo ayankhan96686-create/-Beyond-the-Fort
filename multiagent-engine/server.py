@@ -1,4 +1,4 @@
-import logging, os
+import logging, os, hmac
 import uuid
 from pathlib import Path
 from dotenv import load_dotenv
@@ -11,6 +11,18 @@ from agents.research import load_curated_dataset
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
+SERVICE_TOKEN = os.getenv("LANGGRAPH_SERVICE_TOKEN", "")
+if os.getenv("NODE_ENV", "development").lower() == "production" and len(SERVICE_TOKEN) < 32:
+    raise RuntimeError("LANGGRAPH_SERVICE_TOKEN must contain at least 32 characters in production")
+
+@app.before_request
+def protect_planner_api():
+    if request.path == "/plan" and os.getenv("NODE_ENV", "development").lower() == "production":
+        supplied = request.headers.get("Authorization", "")
+        expected = f"Bearer {SERVICE_TOKEN}"
+        if not hmac.compare_digest(supplied, expected):
+            return jsonify({"status": "error", "message": "Unauthorized"}), 401
 
 @app.get("/health")
 def health():

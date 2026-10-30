@@ -51,12 +51,12 @@ def manager_node(state: TourismAgentState) -> dict[str, Any]:
     """Normalize explicit trip constraints and validate user-selected start/end coordinates."""
     req = dict(state.get("request", {}))
     missing: list[str] = []
-    query = str(req.get("user_query", req.get("query", ""))).strip()
+    query = str(req.get("user_query", req.get("query", ""))).strip()[:1000]
     raw_interests = req.get("interests")
     interests = [raw_interests] if isinstance(raw_interests, str) else raw_interests
     if not interests:
         interests = [query] if query else []
-    interests = [x.strip() for x in interests if isinstance(x, str) and x.strip()] if isinstance(interests, list) else []
+    interests = [x.strip()[:100] for x in interests if isinstance(x, str) and x.strip()][:10] if isinstance(interests, list) else []
 
     legacy_start = req.get("return_location_coordinates", req.get("origin"))
     raw_start = req.get("start_location", legacy_start)

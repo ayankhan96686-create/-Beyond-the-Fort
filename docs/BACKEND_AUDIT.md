@@ -1,5 +1,7 @@
 # Backend Audit
 
+> This audit documents the pre-authentication baseline. Security/auth changes and newer test evidence are recorded in [SECURITY_AUDIT.md](../SECURITY_AUDIT.md) and [FINAL_SECURITY_AND_AUTH_REPORT.md](../FINAL_SECURITY_AND_AUTH_REPORT.md).
+
 Audit date: 2026-10-30. Baseline repository: `main` at `55eb4ce`.
 
 ## Baseline and safeguards
@@ -37,7 +39,7 @@ The Gemini client in `services/geminiService.js` is separate. The six planning n
 - The live Express-to-Flask plan returned HTTP 200 and `feasible`, one stop, six completed node events, two live Mapbox directional calls, and a 12:15 estimated return before the 19:00 deadline.
 - A separate live Mapbox adapter probe returned a route geometry and positive distance/duration. Mapbox uses longitude/latitude request order and returns meters/seconds, converted to km/minutes.
 - The configured Gemini integration did not pass. The live pytest integration used deterministic fallback after its 15-second timeout; a bounded SDK probe likewise ended after 15 seconds without an HTTP status. The provider response, model availability, account quota, and key validity remain unknown.
-- `config/db.js` and Python `agents/research.py` read JSON; no MongoDB driver/adapter or persistence path exists. The configured `MONGODB_URI` does not make the app use MongoDB.
+- `config/db.js` and Python `agents/research.py` read tourism JSON; no MongoDB driver/adapter exists. The later auth change added separate account and itinerary JSON files; `MONGODB_URI` remains unused.
 - Express data contains 12 curated rows. Flask adds 179 Apify Google Maps listings. Imported data remains unverified; its 30-minute dwell time is a planning default. Curated records currently have no source URL/reference or price. A requested budget therefore cannot be proven against current place data.
 
 ## Remaining operational constraints

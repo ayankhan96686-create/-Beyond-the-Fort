@@ -1,5 +1,7 @@
 # Testing and Repair Log
 
+> The sections below preserve the earlier 2026-10-30 backend/chatbot checkpoint. The current auth/security checkpoint and exact latest run are at the end of this file and in [FINAL_SECURITY_AND_AUTH_REPORT.md](../FINAL_SECURITY_AND_AUTH_REPORT.md).
+
 Audit date: 2026-10-30. No dependency upgrades were performed.
 
 ## Baseline before repairs
@@ -74,3 +76,11 @@ No ambiguous project files were moved. `new_style/`, the n8n JSON, and user-gene
 - Node acceptance tests pass 14/14 with mocked Gemini and planner failures/isolation; the Python workflow suite passes 53 tests with 1 integration test deselected.
 - Responsive CSS is implemented, but browser viewport/mobile keyboard and browser geolocation permission automation remain unverified. A grounded Gemini service call succeeded in 38.3 seconds, but actual chat-page requests later exceeded both 45- and 60-second limits; generation remains intermittent. No public deployment was performed.
 - A key-authenticated GET to Gemini's model list returned HTTP 200 and included `gemini-flash-latest`. Direct REST and SDK generation calls timed out at 15 seconds; one SDK call completed in 38.3 seconds with a 45-second timeout. This points to slow/intermittent generation, not a missing key or model name.
+
+## Authentication and security checkpoint — 2026-10-30
+
+- `npm test` with `NODE_ENV=test`: PASS, 24 tests, 0 failures. Includes auth/session/CSRF, role checks, owner-scoped itinerary CRUD/IDOR, and existing Express/chat/i18n coverage.
+- `.venv\Scripts\python.exe -m pytest -q -m "not integration"` from `multiagent-engine`: PASS, 54 passed, 1 integration test deselected; 13 upstream deprecation warnings.
+- `npm audit --omit=dev` after `npm audit fix`: PASS, zero vulnerabilities reported.
+- `node --check` for server/auth/store/browser scripts and Python compile check for `multiagent-engine/server.py`: PASS at the syntax checkpoint.
+- Production browser flow, live Flask service-token enforcement, prompt-injection red-team, production file ACLs, and restore were not run.

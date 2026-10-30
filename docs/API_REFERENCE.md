@@ -1,6 +1,27 @@
 # API Reference
 
-This reference reflects the current Express and Flask routes. The six-node plan response is produced by `multiagent-engine/agents/response_agent.py`.
+This reference reflects the current Express and Flask routes. Mutating Express calls require the `X-CSRF-Token` header matching the `beyond_fort_csrf` cookie. A fresh token is available at `GET /api/auth/csrf`. Responses use JSON errors with `status`, `code` where assigned, and a safe `message`. Standard API limit: 60 requests/minute/IP; auth: 10 requests/15 minutes/IP; AI/chat/planning: 10 requests/minute/IP. The six-node plan response is produced by `multiagent-engine/agents/response_agent.py`.
+
+## Authentication and account routes (Express)
+
+| Method/path | Auth/role | Request and result |
+| --- | --- | --- |
+| `GET /api/auth/csrf` | Guest | Issues/returns a CSRF token. |
+| `POST /api/auth/register` | Guest + CSRF | `{email,password}`; password 12–128 chars with lower, upper, and digit. Returns 201 with a public user object and HttpOnly session cookie. |
+| `POST /api/auth/login` | Guest + CSRF | `{email,password}`; returns generic 401 for invalid credentials and rotates the session on success. |
+| `POST /api/auth/logout` | Any session + CSRF | Invalidates the server session and issues a fresh guest session. |
+| `GET /api/auth/me` | Guest or user | Current public account or `user:null`. |
+| `PATCH /api/auth/profile` | Registered user + CSRF | `{email}`; role/status fields are rejected. |
+| `GET /api/itineraries` | Registered user | Lists only the authenticated user's records. |
+| `POST /api/itineraries` | Registered user + CSRF | `{request,itinerary}`; saves up to 100 plans per user. |
+| `PUT /api/itineraries/:id` | Registered user + CSRF | Replaces that user's request/itinerary only; another user's IDs return 404. |
+| `DELETE /api/itineraries/:id` | Registered user + CSRF | Deletes that user's record only; another user's IDs return 404. |
+| `GET /api/admin/users` | Administrator | Lists public account fields only; never returns password hashes. |
+| `PATCH /api/admin/users/:id/role` | Administrator + CSRF | `{role:"user"|"administrator"}`; cannot self-demote. |
+
+`POST /search`, both tourism planner paths, and `POST /api/v1/feasibility/search` require a registered user and CSRF. `POST /api/chat` remains public for bounded tourism questions, but planning intent requires authentication. `POST /api/v1/intent/parse` is public and rate-limited. Public attraction and POI reads remain unauthenticated. The Express `/health` response is public and describes process status only.
+
+In production, Flask `POST /plan` additionally requires the `LANGGRAPH_SERVICE_TOKEN` bearer credential used only by the Express service. Flask `/health` and `/attractions` remain read-only public routes; deployments should keep Flask on a private interface.
 
 ## Planner API
 
@@ -68,7 +89,9 @@ Example response shape:
 | `GET /attractions` | Flask | `{count, data}` from the two local JSON datasets, excluding synthetic/placeholder rows. |
 | `GET /api/v1/pois` | Express | `{status:"success", count, data}` from the 12-row curated JSON dataset. |
 | `GET /api/v1/attractions/:id` | Express | `{status:"success", data}` or HTTP 404 `{status:"not_found", message}`. |
-| `GET /` / `GET /itinerary` / `GET /attractions/:id` | Express | EJS pages. The itinerary reads the current tab's `sessionStorage`. |
+| `GET /` / `GET /attractions/:id` | Express | Public EJS pages. |
+| `GET /itinerary` / `GET /account` | Express | Registered user pages; guests redirect to sign-in. Tab itinerary state is scoped to account ID. |
+| `GET /admin` | Express | Administrator page; guests redirect and non-admin users receive the access-denied screen. |
 
 ## Other Express APIs
 
@@ -82,3 +105,5 @@ Example response shape:
 - If Flask is unreachable or the bridge times out, Express returns HTTP 503 and a generic service-unavailable error.
 - Place source URLs are not fetched/validated. A URL or auditor label alone never constitutes proof of verification.
 - Dates are syntax-checked only; there is no timezone, future-date, or overnight scheduling support. Current data has no prices; budget-constrained plans cannot be proven feasible without known costs.
+- Password reset and email verification are not provided because no mail delivery service is configured. User registration is active immediately.
+- Account and itinerary JSON files support one local application process. They do not provide cross-host locking, database transactions, or automated backups.

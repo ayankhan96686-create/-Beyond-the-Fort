@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/css/style.css?v=heritage-5">
   <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
 </head>
-<body class="heritage-app">
+<body class="heritage-app" data-user-id="<%= currentUser ? currentUser.id : 'guest' %>">
   <%- include('partials/navbar') %>
   <main class="heritage-main" id="home">
   <section class="heritage-hero" aria-labelledby="hero-heading">

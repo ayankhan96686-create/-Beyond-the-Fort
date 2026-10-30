@@ -5,8 +5,35 @@
  * Run via: npm test (or node --test tests/acceptanceTests.test.js)
  */
 
-const { test, describe } = require('node:test');
+const { test, describe, after } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+
+process.env.NODE_ENV = 'test';
+const authTestDir = fs.mkdtempSync(path.join(os.tmpdir(), 'beyond-fort-acceptance-'));
+process.env.AUTH_USERS_FILE = path.join(authTestDir, 'users.json');
+process.env.SAVED_ITINERARIES_FILE = path.join(authTestDir, 'itineraries.json');
+after(() => fs.rmSync(authTestDir, { recursive: true, force: true }));
+
+async function testClient(base, register = false) {
+  const cookies = new Map();
+  const updateCookies = response => { for (const entry of response.headers.getSetCookie()) { const pair = entry.split(';', 1)[0]; const at = pair.indexOf('='); cookies.set(pair.slice(0, at), pair.slice(at + 1)); } };
+  const csrfResponse = await fetch(`${base}/api/auth/csrf`); updateCookies(csrfResponse);
+  const { csrfToken } = await csrfResponse.json();
+  const request = async (url, { method = 'GET', body } = {}) => {
+    const headers = { Cookie: [...cookies].map(([key, value]) => `${key}=${value}`).join('; ') };
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    if (method !== 'GET') headers['X-CSRF-Token'] = cookies.get('beyond_fort_csrf') || csrfToken;
+    const response = await fetch(`${base}${url}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) }); updateCookies(response); return response;
+  };
+  if (register) {
+    const registered = await request('/api/auth/register', { method: 'POST', body: { email: `user-${Date.now()}-${Math.random()}@example.test`, password: 'StrongPassword123' } });
+    assert.equal(registered.status, 201);
+  }
+  return { request, cookies };
+}
 
 const feasibilityMath = require('../utils/feasibilityMath');
 const schemaValidator = require('../utils/schemaValidator');
@@ -233,17 +260,13 @@ describe('Team Venator Acceptance Test Suite', () => {
     await new Promise(resolve => server.once('listening', resolve));
     const base = `http://127.0.0.1:${server.address().port}`;
     try {
-      const intent = await fetch(`${base}/api/v1/intent/parse`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: 'silk' })
-      });
+      const client = await testClient(base, true);
+      const intent = await client.request('/api/v1/intent/parse', { method: 'POST', body: { query: 'silk' } });
       assert.equal(intent.status, 500);
       assert.equal((await intent.json()).message, 'Intent parsing failed.');
 
       geminiService.extractIntent = async () => ({ category: 'all', time_budget_minutes: 180 });
-      const feasibility = await fetch(`${base}/api/v1/feasibility/search`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'silk', time_budget_minutes: 180, origin: config.defaultOrigin })
-      });
+      const feasibility = await client.request('/api/v1/feasibility/search', { method: 'POST', body: { query: 'silk', time_budget_minutes: 180, origin: config.defaultOrigin } });
       assert.equal(feasibility.status, 500);
       assert.equal((await feasibility.json()).message, 'Feasibility search failed.');
       assert.ok(!logLines.join(' ').includes('private-token-and-provider-url'));
@@ -262,9 +285,10 @@ describe('Team Venator Acceptance Test Suite', () => {
     await new Promise(resolve => server.once('listening', resolve));
     const base = `http://127.0.0.1:${server.address().port}`;
     try {
+      const client = await testClient(base, true);
       const [itineraryPage, detailPage, attraction, missing] = await Promise.all([
-        fetch(`${base}/itinerary`), fetch(`${base}/attractions/poi_gwl_001`),
-        fetch(`${base}/api/v1/attractions/poi_gwl_001`), fetch(`${base}/api/v1/attractions/not-a-real-id`)
+        client.request('/itinerary'), client.request('/attractions/poi_gwl_001'),
+        client.request('/api/v1/attractions/poi_gwl_001'), client.request('/api/v1/attractions/not-a-real-id')
       ]);
       assert.equal(itineraryPage.status, 200);
       assert.match(await itineraryPage.text(), /itineraryContent/);
@@ -284,15 +308,17 @@ describe('Team Venator Acceptance Test Suite', () => {
     bridge.executeWorkflow = async payload => ({ statusCode: 200, status: 'needs_input', missing_fields: ['start_location'], itinerary_stops: [] });
     const server = app.listen(0, '127.0.0.1'); await new Promise(resolve => server.once('listening', resolve)); const base = `http://127.0.0.1:${server.address().port}`;
     try {
-      const invalid = await fetch(`${base}/api/chat`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:' '}) }); assert.equal(invalid.status,400);
-      const tooLong = await fetch(`${base}/api/chat`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:'x'.repeat(2001),conversationId:'x'}) }); assert.equal(tooLong.status,413);
-      let response = await fetch(`${base}/api/chat`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:'Tell me about heritage',conversationId:'same'}) });
-      const cookie = response.headers.get('set-cookie').split(';')[0]; assert.equal((await response.json()).reply,'Dataset-grounded answer.');
-      response = await fetch(`${base}/api/chat`, { method:'POST', headers:{'Content-Type':'application/json',Cookie:cookie}, body:JSON.stringify({message:'And entry fees?',conversationId:'same'}) }); await response.json();
+      const client = await testClient(base, true);
+      const invalid = await client.request('/api/chat', { method:'POST', body:{message:' '} }); assert.equal(invalid.status,400);
+      const tooLong = await client.request('/api/chat', { method:'POST', body:{message:'x'.repeat(2001),conversationId:'x'} }); assert.equal(tooLong.status,413);
+      let response = await client.request('/api/chat', { method:'POST', body:{message:'Tell me about heritage',conversationId:'same'} });
+      assert.equal((await response.json()).reply,'Dataset-grounded answer.');
+      response = await client.request('/api/chat', { method:'POST', body:{message:'And entry fees?',conversationId:'same'} }); await response.json();
       assert.equal(seen[1].length,2);
-      await fetch(`${base}/api/chat`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:'Tell me about heritage',conversationId:'same'}) });
+      const secondClient = await testClient(base);
+      await secondClient.request('/api/chat', { method:'POST', body:{message:'Tell me about heritage',conversationId:'same'} });
       assert.equal(seen[2].length,0);
-      const planned = await fetch(`${base}/api/chat`, { method:'POST', headers:{'Content-Type':'application/json',Cookie:cookie}, body:JSON.stringify({message:'Plan a four-hour visit',conversationId:'plan-1',trip:{available_minutes:240}}) });
+      const planned = await client.request('/api/chat', { method:'POST', body:{message:'Plan a four-hour visit',conversationId:'plan-1',trip:{available_minutes:240}} });
       const result = await planned.json(); assert.equal(result.status,'needs_input'); assert.ok(result.result.missing_fields.includes('start_location'));
     } finally { await new Promise(resolve => server.close(resolve)); geminiService.answerTourismQuestion=originalAnswer; bridge.executeWorkflow=originalPlan; chat._sessions.clear(); }
   });
@@ -304,13 +330,13 @@ describe('Team Venator Acceptance Test Suite', () => {
     bridge.executeWorkflow = async () => ({ statusCode: 503, status: 'provider_error', errors: ['Tourism planning service unavailable.'], itinerary_stops: [] });
     const server = app.listen(0, '127.0.0.1'); await new Promise(resolve => server.once('listening', resolve)); const base = `http://127.0.0.1:${server.address().port}`;
     try {
-      const page = await fetch(`${base}/chat`); assert.equal(page.status, 200); assert.match(await page.text(), /id="chatForm"/);
-      const headers = { 'Content-Type': 'application/json' };
-      const gemini = await fetch(`${base}/api/chat`, { method:'POST', headers, body:JSON.stringify({ message:'What is in the dataset?', conversationId:'gemini-fail' }) });
+      const client = await testClient(base, true);
+      const page = await client.request('/chat'); assert.equal(page.status, 200); assert.match(await page.text(), /id="chatForm"/);
+      const gemini = await client.request('/api/chat', { method:'POST', body:{ message:'What is in the dataset?', conversationId:'gemini-fail' } });
       const geminiError = await gemini.json(); assert.equal(gemini.status, 503); assert.equal(geminiError.status, 'provider_error'); assert.match(geminiError.message, /60 seconds/);
-      const plan = await fetch(`${base}/api/chat`, { method:'POST', headers, body:JSON.stringify({ message:'Plan a route', conversationId:'agent-fail', trip:{ available_minutes:120 } }) });
+      const plan = await client.request('/api/chat', { method:'POST', body:{ message:'Plan a route', conversationId:'agent-fail', trip:{ available_minutes:120 } } });
       const data = await plan.json(); assert.equal(plan.status, 503); assert.equal(data.status, 'provider_error'); assert.equal(data.result, null);
-      const invalidConversation = await fetch(`${base}/api/chat`, { method:'POST', headers, body:JSON.stringify({ message:'Hi', conversationId:'bad id' }) });
+      const invalidConversation = await client.request('/api/chat', { method:'POST', body:{ message:'Hi', conversationId:'bad id' } });
       assert.equal(invalidConversation.status, 400);
     } finally { await new Promise(resolve => server.close(resolve)); geminiService.answerTourismQuestion=originalAnswer; bridge.executeWorkflow=originalPlan; }
   });
@@ -320,7 +346,8 @@ describe('Team Venator Acceptance Test Suite', () => {
     bridge.executeWorkflow = async () => ({ statusCode: 200, status: 'feasible', itinerary_stops: [{ poi_id: 'poi_gwl_001', name: 'Gwalior Fort', planned_arrival: '10:00' }], route_legs: [{ leg: 'origin->poi_gwl_001', duration_minutes: 12 }], warnings: [] });
     const server = app.listen(0, '127.0.0.1'); await new Promise(resolve => server.once('listening', resolve)); const base = `http://127.0.0.1:${server.address().port}`;
     try {
-      const response = await fetch(`${base}/api/chat`, { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify({ message:'Plan a trip', conversationId:'map-links', trip:{ available_minutes:120 } }) });
+      const client = await testClient(base, true);
+      const response = await client.request('/api/chat', { method:'POST', body:{ message:'Plan a trip', conversationId:'map-links', trip:{ available_minutes:120 } } });
       const data = await response.json(); assert.equal(response.status, 200); assert.equal(data.status, 'feasible');
       assert.equal(data.result.itinerary_stops[0].poi_id, 'poi_gwl_001');
       assert.deepEqual(data.actions, { itinerary:'/itinerary', map:'/itinerary#tripMap' });

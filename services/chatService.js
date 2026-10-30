@@ -7,16 +7,18 @@ const sessions = new Map();
 const MAX_MESSAGE = 2000;
 const SESSION_TTL = 12 * 60 * 60 * 1000;
 const MAX_SESSIONS = 10000;
+const CHAT_COOKIE = 'beyond_fort_chat';
 const PLAN_INTENT = /\b(plan|itinerary|route|routing|visit order|return to|return by|back by|trip|tour|schedule|deadline)\b|\b(ghante|ghanta|waapas|wapas|yatra)\b/i;
 
 function getSession(req, res) {
   const now = Date.now();
   for (const [key, value] of sessions) if (now - value.touchedAt > SESSION_TTL) sessions.delete(key);
-  const cookie = String(req.headers.cookie || '').split(';').map(x => x.trim()).find(x => x.startsWith('beyond_fort_session='));
-  let id = cookie?.slice('beyond_fort_session='.length);
+  const cookie = String(req.headers.cookie || '').split(';').map(x => x.trim()).find(x => x.startsWith(`${CHAT_COOKIE}=`));
+  let id = cookie?.slice(`${CHAT_COOKIE}=`.length);
   if (!id || !sessions.has(id)) id = crypto.randomBytes(24).toString('hex');
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-  res.setHeader('Set-Cookie', `beyond_fort_session=${id}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200${secure}`);
+  const existingCookies = res.getHeader('Set-Cookie');
+  res.setHeader('Set-Cookie', [...(Array.isArray(existingCookies) ? existingCookies : existingCookies ? [existingCookies] : []), `${CHAT_COOKIE}=${id}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200${secure}`]);
   let session = sessions.get(id);
   if (!session || now - session.touchedAt > SESSION_TTL) session = { conversations: new Map() };
   session.touchedAt = now; sessions.set(id, session);
@@ -33,6 +35,7 @@ async function send(req, res) {
   if (message.length > MAX_MESSAGE) return res.status(413).json({ status: 'error', message: `Messages must be ${MAX_MESSAGE} characters or fewer.` });
   const conversationId = typeof body.conversationId === 'string' && /^[\w-]{1,80}$/.test(body.conversationId) ? body.conversationId : null;
   if (!conversationId) return res.status(400).json({ status: 'error', message: 'Start a new conversation and try again.' });
+  if (isPlanningRequest(message, body.intent === 'plan') && !req.auth?.user) return res.status(401).json({ status: 'error', code: 'AUTH_REQUIRED', message: 'Sign in to generate a personalized itinerary.' });
   const session = getSession(req, res);
   const history = session.conversations.get(conversationId) || [];
   const userMessage = message.trim();
