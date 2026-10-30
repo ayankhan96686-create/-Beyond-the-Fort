@@ -54,6 +54,6 @@ def attractions():
     return jsonify({"count":len(rows), "data":rows})
 
 if __name__ == "__main__":
-    host = os.getenv("HOST") or ("0.0.0.0" if (os.getenv("PORT") or os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("NODE_ENV") == "production") else "127.0.0.1")
-    port = int(os.getenv("PORT") or os.getenv("LANGGRAPH_PORT", "8000"))
+    host = os.getenv("HOST") or ("0.0.0.0" if (os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("NODE_ENV") == "production") else "127.0.0.1")
+    port = int(os.getenv("PORT", "8000")) if os.getenv("RAILWAY_ENVIRONMENT") else int(os.getenv("LANGGRAPH_PORT", "8000"))
     app.run(host=host, port=port, debug=False)
