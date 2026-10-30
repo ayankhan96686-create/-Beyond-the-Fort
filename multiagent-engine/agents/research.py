@@ -3,8 +3,20 @@ from typing import Any
 from state import TourismAgentState
 
 log = logging.getLogger(__name__)
-DATASET_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "gwalior_curated_pois.json"))
-SUPPLEMENTAL_DATASET_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "beyond_the_fort_places.json"))
+def _resolve_data_path(filename: str) -> str:
+    candidates = [
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", filename)),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", filename)),
+        os.path.abspath(os.path.join(os.getcwd(), "data", filename)),
+        os.path.abspath(os.path.join(os.getcwd(), "..", "data", filename)),
+    ]
+    for c in candidates:
+        if os.path.isfile(c):
+            return c
+    return candidates[0]
+
+DATASET_PATH = _resolve_data_path("gwalior_curated_pois.json")
+SUPPLEMENTAL_DATASET_PATH = _resolve_data_path("beyond_the_fort_places.json")
 SUPPLEMENTAL_DWELL_MINUTES = 30
 MAX_RESEARCH_CANDIDATES = 6
 

@@ -4,6 +4,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+load_dotenv(Path(__file__).resolve().parent / ".env")
+load_dotenv()
 
 from flask import Flask, jsonify, request
 from graph import tourism_graph
@@ -52,4 +54,6 @@ def attractions():
     return jsonify({"count":len(rows), "data":rows})
 
 if __name__ == "__main__":
-    app.run(host=os.getenv("HOST", "127.0.0.1"), port=int(os.getenv("LANGGRAPH_PORT", "8000")), debug=False)
+    host = os.getenv("HOST") or ("0.0.0.0" if (os.getenv("PORT") or os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("NODE_ENV") == "production") else "127.0.0.1")
+    port = int(os.getenv("PORT") or os.getenv("LANGGRAPH_PORT", "8000"))
+    app.run(host=host, port=port, debug=False)

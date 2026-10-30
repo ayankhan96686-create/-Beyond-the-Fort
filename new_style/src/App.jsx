@@ -11,6 +11,7 @@ import {
 
 import { LANGUAGES_LIST, TRANSLATIONS } from './translations';
 import { generateTansenAIResponse, getLocalizedWelcomeMessage } from './aiConcierge';
+import { sendChatMessage, API_BASE_URL } from './services/api';
 
 // ========================================================
 // DATA DEFINITION: GWALIOR HERITAGE SPOTS (36 Curated Places)
@@ -1248,7 +1249,7 @@ export default function App() {
   };
 
   // Chatbot Send Message Handler
-  const handleSendChat = (messageText) => {
+  const handleSendChat = async (messageText) => {
     const query = messageText || chatInput;
     if (!query.trim()) return;
 
@@ -1262,6 +1263,30 @@ export default function App() {
     setChatMessages(prev => [...prev, userMsg]);
     setChatInput('');
     setIsBotTyping(true);
+
+    try {
+      if (API_BASE_URL) {
+        const res = await sendChatMessage(query, selectedLang);
+        const replyText = res.reply || res.message || res.text;
+        if (replyText) {
+          setChatMessages(prev => [
+            ...prev,
+            {
+              id: Date.now() + 1,
+              sender: 'bot',
+              text: replyText,
+              source: res.source,
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              suggestions: res.suggestions || ['Tell me more', 'Plan my visit', 'Best food nearby']
+            }
+          ]);
+          setIsBotTyping(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('[ChatBot] Live backend unavailable, using curated concierge:', err.message);
+    }
 
     setTimeout(() => {
       // Pass the active selectedLang state into the AI prompt payload and generator
@@ -1287,7 +1312,7 @@ export default function App() {
         }
       ]);
       setIsBotTyping(false);
-    }, 600);
+    }, 500);
   };
 
   // Step-by-Step Directions

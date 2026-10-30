@@ -20,7 +20,8 @@ const app = express();
 app.disable('x-powered-by');
 if (process.env.NODE_ENV === 'production') {
   if (config.langgraphServiceToken.length < 32) throw new Error('LANGGRAPH_SERVICE_TOKEN must contain at least 32 characters in production.');
-  if (!process.env.AUTH_USERS_FILE || !process.env.SAVED_ITINERARIES_FILE) throw new Error('AUTH_USERS_FILE and SAVED_ITINERARIES_FILE must point to persistent private storage in production.');
+  if (!process.env.AUTH_USERS_FILE) process.env.AUTH_USERS_FILE = path.join(__dirname, 'data', '.auth-users.json');
+  if (!process.env.SAVED_ITINERARIES_FILE) process.env.SAVED_ITINERARIES_FILE = path.join(__dirname, 'data', '.saved-itineraries.json');
 }
 const proxyHops = process.env.TRUST_PROXY_HOPS ? Number(process.env.TRUST_PROXY_HOPS) : 0;
 if (!Number.isInteger(proxyHops) || proxyHops < 0 || proxyHops > 5) throw new Error('TRUST_PROXY_HOPS must be an integer from 0 to 5.');
@@ -249,7 +250,8 @@ if (require.main === module) {
   db.connect().then(() => {
     // Bind locally over IPv4 so the server can coexist with services bound to
     // the IPv6 wildcard address and remains reachable at localhost on Windows.
-    app.listen(config.port, process.env.HOST || '127.0.0.1', () => {
+    const listenHost = process.env.HOST || (process.env.PORT || process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1');
+    app.listen(config.port, listenHost, () => {
       console.log(`=======================================================`);
       console.log(`  Team Venator: Time-Aware Digital Discoverability`);
       console.log(`  AI Synergy Hackathon 2026 • Round 1`);

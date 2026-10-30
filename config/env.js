@@ -11,7 +11,7 @@ const config = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   distanceMatrixApiKey: process.env.DISTANCE_MATRIX_API_KEY || '',
   mongoUri: process.env.MONGODB_URI || '',
-  langgraphApiUrl: process.env.LANGGRAPH_API_URL || 'http://127.0.0.1:8000/plan',
+  langgraphApiUrl: process.env.LANGGRAPH_API_URL || (process.env.PYTHON_SERVICE_URL ? `${process.env.PYTHON_SERVICE_URL.replace(/\/$/, '')}/plan` : 'http://127.0.0.1:8000/plan'),
   langgraphServiceToken: process.env.LANGGRAPH_SERVICE_TOKEN || '',
   transitTimeoutMs: parseInt(process.env.TRANSIT_API_TIMEOUT_MS, 10) || 3000,
   safetyBufferRatio: parseFloat(process.env.SAFETY_BUFFER_RATIO) || 0.25,
