@@ -42,3 +42,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 # Start dual service orchestrator (Python LangGraph on :8000 + Node.js Express on :3000)
 CMD ["npm", "run", "start:all"]
+

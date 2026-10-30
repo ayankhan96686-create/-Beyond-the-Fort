@@ -140,3 +140,4 @@ test('password reset enforces secure token hashing, expiration, anti-enumeration
 ```
 
 **Test Result:** `PASS` (All 25/25 test cases passing).
+

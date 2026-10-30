@@ -111,3 +111,4 @@ In `public/css/style.css` and `public/js/itinerary.js`:
 - High-legibility credit badge (`.photo-credit`) anchored to the bottom-right of the image with a subtle frosted glass background (`rgba(27, 23, 20, 0.85)` + `backdrop-filter: blur(4px)`).
 - Direct hyperlink to the original Wikimedia Commons file description page, preserving copyright requirements under CC BY-SA 2.5, 3.0, and 4.0.
 - Fallback handling: In the unlikely event of network interruption or an asset 404, an `error` event listener immediately converts the image element to a branded neutral placeholder (`GWALIOR · LIVING HERITAGE`) without broken image icons.
+

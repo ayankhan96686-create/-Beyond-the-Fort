@@ -197,3 +197,4 @@ Once deployed to any cloud provider, perform these 5 verification checks:
    # Verify: Strict-Transport-Security present
    # Verify: X-Powered-By is absent
    ```
+
