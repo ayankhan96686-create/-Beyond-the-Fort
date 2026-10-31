@@ -1,0 +1,11 @@
+{
+  "original_large_rows": 502,
+  "source_backed_seed_rows": 32,
+  "synthetic_placeholder_rows": 470,
+  "business_rows": 25,
+  "business_missing_latitude": 25,
+  "business_missing_longitude": 25,
+  "business_missing_hours": 10,
+  "business_missing_source_url": 15,
+  "combined_candidate_rows": 57
+}

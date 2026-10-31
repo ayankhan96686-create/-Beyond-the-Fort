@@ -1,0 +1,15 @@
+﻿rule_id,rule_name,constraint_type,validation_logic,failure_or_action,rule_origin
+C001,Required input validation,HARD,"city, start_time, available_minutes, return_deadline, return_location must be present and parseable",Reject planning until required fields are provided,CODE_RULE
+C002,Return deadline,HARD,estimated_return_time <= return_deadline - configured_safety_buffer,Reject itinerary that exceeds deadline,CODE_RULE
+C003,Available duration,HARD,"planned elapsed time from start through return <= available_minutes, when the user supplies a duration",Reject plan exceeding duration,CODE_RULE
+C004,Travel time included,HARD,total duration includes travel between stops and travel from final stop to return location,Reject incomplete schedule; recalculate,CODE_RULE
+C005,Visit duration included,HARD,each scheduled stop has a sourced or explicitly marked estimated duration,Ask for or use labelled demo estimate; never mark unknown estimate as verified,CODE_RULE
+C006,Opening hours,HARD_WHEN_KNOWN,"scheduled visit must fit within reliable, date-specific opening hours",Exclude stop or request verification when hours conflict or are unknown,CODE_RULE
+C007,Budget,HARD_IF_USER_SAYS_STRICT,sum of available supported prices must fit the requested hard budget; unknown prices must be disclosed,Reject or warn depending on whether user marked budget strict,CODE_RULE
+C008,Interest preference,SOFT,score attractions by overlap with selected interests,"Use as ranking preference, never override a hard constraint",CODE_RULE
+C009,Provenance,HARD,"each factual claim must retain a source and evidence status, or be marked unknown/inference",Do not label unsupported claims VERIFIED,CODE_RULE
+C010,Synthetic data separation,HARD,record_type= Synthetic placeholder must never be displayed as a real-world venue,Limit synthetic records to tests or explicitly labelled demos,CODE_RULE
+C011,API outage handling,HARD,routing or LLM failures must be visible in warnings/errors,Use documented fallback only; label demo estimates,CODE_RULE
+C012,No feasible plan,HARD,"if no sequence satisfies hard constraints, return infeasible status",Do not fabricate a feasible itinerary,CODE_RULE
+C013,Return location endpoint,HARD,last route leg must terminate at requested return_location,Reject itinerary without a verified/configured return endpoint,CODE_RULE
+C014,Rating freshness,SOFT_WARNING,ratings and review counts can change; preserve timestamp/last_checked if available,Display source and freshness warning; do not assert current rating without re-check,CODE_RULE

@@ -1,0 +1,41 @@
+ANTIGRAVITY TASK: INTEGRATE MY TOURISM DATASETS SAFELY
+
+I have extracted this pack into a folder named `tourism_ai_data_pack/` inside my existing repository. Locate and read the files in that folder (or its equivalent data/ subfolder):
+- Venator_Real_Local_Businesses_Ratings_Gwalior.csv
+- AI_Synergy_Venator_Large_Dataset_500.csv
+- source_backed_seed_records_review_required.csv
+- synthetic_placeholder_records_test_only.csv
+- gwalior_combined_candidate_catalog.csv
+- interest_taxonomy.csv
+- constraint_rules.csv
+- agent_test_cases.csv
+- routing_test_fixtures_SYNTHETIC_ONLY.csv
+- source_registry_review_required.csv
+- data_quality_report.csv
+- dataset_manifest.json
+
+First inspect the existing application and preserve working features. Then implement the following: 
+
+1. Add a small data-access module that loads CSV/JSON safely, validates required columns, handles nulls, and does not change original source files.
+2. Use `gwalior_combined_candidate_catalog.csv` as the unified candidate index for Gwalior. Treat every record as a candidate, not automatically as verified.
+3. Load `interest_taxonomy.csv` for matching user interests to candidate categories/keywords. Keep the matching logic explainable.
+4. Read `constraint_rules.csv` and implement hard-deadline, return-route, total-duration, provenance, and synthetic-data guardrails in deterministic Python functions. The LLM must not override these checks.
+5. Use `source_backed_seed_records_review_required.csv` only as source-listed leads requiring field-level review. Do not label these items VERIFIED just because the record has a source URL.
+6. Never expose `synthetic_placeholder_records_test_only.csv` as real businesses or attractions. The 470 synthetic placeholder records from the original large CSV are only for tests or a clearly labelled demo screen. Do not mix them into production search results.
+7. `routing_test_fixtures_SYNTHETIC_ONLY.csv` is for unit tests only. Never display its route times as live or factual. In live mode, request real route estimates from a configured routing provider; if unavailable, return a warning or a clearly marked demo estimate.
+8. Missing coordinates, hours, prices, visit durations, source URLs or ratings must remain unknown/null until verified from an allowed source. Never hallucinate values.
+9. Preserve source name, source URL, source status, last-checked metadata and original record ID through every agent. Add evidence labels: VERIFIED only when the relevant claim has actually been confirmed by an acceptable source; STAKEHOLDER_PROVIDED; AI_INFERENCE; and UNKNOWN/NEEDS_VERIFICATION if needed.
+10. Add the 20 scenarios in `agent_test_cases.csv` to automated tests or map them into pytest fixtures. At minimum test deadline violation, missing location, invalid time, no matching results, budget, source missing, API outage and synthetic-record exclusion.
+11. Add a dataset quality summary endpoint or admin/debug page that shows row counts, missing values, verification status counts and how many synthetic records are excluded. Do not expose private credentials.
+12. Add environment configuration for dataset paths and DEMO_MODE. A missing CSV or malformed schema should produce a clear actionable error instead of silently returning empty results.
+13. Update README with exact Windows PowerShell setup/run commands. Run tests and report which passed. Do not claim live API integration unless it is actually configured and tested.
+
+Acceptance criteria:
+- App starts in local demo mode without paid API keys.
+- Search results exclude synthetic placeholders unless the user explicitly selects a labelled demo/test mode.
+- No fabricated data is presented as verified.
+- Itinerary never violates the return deadline after deterministic validation.
+- API responses preserve provenance and warnings.
+- Tests use synthetic fixtures but label them as test data.
+
+Implement this in small, testable changes. At the end, list files changed, commands executed, tests passed/failed, remaining missing data, and the API keys still needed for live routing/LLM features. Do not ask me to manually rewrite the CSVs; read them from the repository.

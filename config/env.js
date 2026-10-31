@@ -6,12 +6,12 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const config = {
-  port: parseInt(process.env.PORT, 10) || 3000,
+  port: parseInt(process.env.PORT, 10) || 5173,
   nodeEnv: process.env.NODE_ENV || 'development',
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   distanceMatrixApiKey: process.env.DISTANCE_MATRIX_API_KEY || '',
   mongoUri: process.env.MONGODB_URI || '',
-  langgraphApiUrl: process.env.LANGGRAPH_API_URL || (process.env.PYTHON_SERVICE_URL ? `${process.env.PYTHON_SERVICE_URL.replace(/\/$/, '')}/plan` : 'http://127.0.0.1:8000/plan'),
+  langgraphApiUrl: process.env.LANGGRAPH_API_URL || (process.env.PYTHON_SERVICE_URL ? `${process.env.PYTHON_SERVICE_URL.replace(/\/$/, '')}/plan` : 'http://127.0.0.1:5173/plan'),
   langgraphServiceToken: process.env.LANGGRAPH_SERVICE_TOKEN || '',
   transitTimeoutMs: parseInt(process.env.TRANSIT_API_TIMEOUT_MS, 10) || 3000,
   safetyBufferRatio: parseFloat(process.env.SAFETY_BUFFER_RATIO) || 0.25,
@@ -19,7 +19,8 @@ const config = {
   defaultOrigin: {
     lat: 26.2298,
     lng: 78.1733,
-    label: 'Gwalior Fort Main Gate'
+    label: 'Gwalior Fort Main Gate',
+    source: 'map_pin'
   }
 };
 

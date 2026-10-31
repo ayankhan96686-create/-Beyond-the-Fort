@@ -2,9 +2,50 @@
 
 @layer base {
   :root {
-    --heritage-cream: #FDFBF7;
-    --heritage-maroon: #8B0000;
-    --heritage-gold: #D4AF37;
+    /* Royal Heritage Color System — Gwalior Palace & Citadels */
+    --color-sandstone-light: #FDFBF7;
+    --color-sandstone-card: #FFFFFF;
+    --color-sandstone-ivory: #F7F3EA;
+    --color-sandstone-muted: #F7F3EC;
+    --color-sandstone-border: #E8DEC9;
+
+    /* Royal Burgundy Palette */
+    --color-burgundy-950: #1A0407;
+    --color-burgundy-900: #2D0B12;
+    --color-burgundy-850: #45131D;
+    --color-burgundy-800: #4A121A;
+    --color-burgundy-700: #681C26;
+    --color-burgundy-600: #8B1E2B;
+    --color-burgundy-50: #FDF2F4;
+
+    /* Antique Gold & Imperial Brass */
+    --color-gold-900: #583F06;
+    --color-gold-800: #8F690B;
+    --color-gold-700: #C9A34A;
+    --color-gold-600: #C59B27;
+    --color-gold-500: #D4AF37;
+    --color-gold-400: #F3D279;
+    --color-gold-100: #FBF4DE;
+    --color-gold-50: #FEFBF0;
+
+    /* Deep Heritage Teal & Chanderi Silks */
+    --color-teal-900: #0B4643;
+    --color-teal-800: #176B67;
+    --color-teal-700: #1D807B;
+    --color-teal-600: #0F766E;
+    --color-teal-500: #14B8A6;
+    --color-teal-100: #DDEDE8;
+    --color-teal-50: #F0FDFA;
+
+    /* Warm Historic Copper & Terracotta */
+    --color-copper-800: #874E2E;
+    --color-copper-700: #A96C48;
+    --color-copper-600: #C4815A;
+    --color-copper-100: #F6ECE5;
+
+    /* Neutral Charcoal */
+    --color-charcoal: #1C1617;
+    --color-charcoal-muted: #5E5253;
   }
 
   html,
@@ -12,13 +53,13 @@
     width: 100%;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
     overflow-x: clip;
-    background-color: #FDFBF7;
-    color: #2D241E;
+    background-color: var(--color-sandstone-light);
+    color: var(--color-charcoal);
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
 
   #root {
@@ -31,48 +72,278 @@
   }
 }
 
-/* Ensure overflow-x-hidden does not break position: sticky */
-.overflow-x-hidden {
-  overflow-x: clip;
+/* Typography Utility Classes */
+.font-display {
+  font-family: 'Playfair Display', 'Cormorant Garamond', 'Cinzel', Georgia, serif;
 }
 
-/* Custom Heritage Utility Classes & Fonts */
+.font-serif-luxury {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+}
+
 .font-heritage {
   font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
 }
 
-.heritage-pattern {
+.font-mono-numbers {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Luxury Royal Heritage Background Gradients */
+.bg-heritage-gradient {
+  background: linear-gradient(135deg, #2B070C 0%, #4A121A 60%, #1A0407 100%);
+}
+
+.bg-sandstone-wash {
   background-color: #FDFBF7;
-  background-image: radial-gradient(#D4AF37 0.75px, transparent 0.75px), radial-gradient(#8B0000 0.75px, #FDFBF7 0.75px);
-  background-size: 30px 30px;
-  background-position: 0 0, 15px 15px;
-  background-opacity: 0.05;
+  background-image: radial-gradient(#D4AF37 0.65px, transparent 0.65px), radial-gradient(#4A121A 0.65px, #FDFBF7 0.65px);
+  background-size: 36px 36px;
+  background-position: 0 0, 18px 18px;
 }
 
-.gold-gradient {
-  background: linear-gradient(135deg, #D4AF37 0%, #F5D77F 50%, #AA820A 100%);
+.gold-shimmer-text {
+  background: linear-gradient(135deg, #F3D279 0%, #D4AF37 50%, #FFF2CC 75%, #AA820A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.maroon-gradient {
-  background: linear-gradient(135deg, #8B0000 0%, #660000 70%, #400000 100%);
+/* Glassmorphism & Elevation */
+.glass-island {
+  background: rgba(253, 251, 247, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 12px 36px rgba(43, 7, 12, 0.08);
 }
 
-.maroon-gold-border {
+.glass-island-dark {
+  background: rgba(43, 7, 12, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid rgba(212, 175, 55, 0.4);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.card-luxury {
+  background: #FFFFFF;
+  border: 1px solid #E8DEC9;
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 20px rgba(74, 18, 26, 0.05);
+  transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-luxury:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(74, 18, 26, 0.12);
+  border-color: rgba(212, 175, 55, 0.6);
+}
+
+/* Tactile Micro-Interactions */
+.interactive-tap {
+  transition: transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 140ms ease, background-color 140ms ease;
+  user-select: none;
+}
+
+.interactive-tap:active {
+  transform: scale(0.95) !important;
+}
+
+/* Royal Heritage Badges */
+.badge-heritage-teal {
+  background-color: #DDEDE8;
+  color: #176B67;
+  border: 1px solid rgba(23, 107, 103, 0.35);
+}
+
+.badge-heritage-copper {
+  background-color: #F6ECE5;
+  color: #A96C48;
+  border: 1px solid rgba(169, 108, 72, 0.35);
+}
+
+.badge-heritage-burgundy {
+  background-color: #FDF2F4;
+  color: #45131D;
+  border: 1px solid rgba(69, 19, 29, 0.35);
+}
+
+.badge-heritage-gold {
+  background-color: #FEFBF0;
+  color: #8F690B;
+  border: 1px solid rgba(201, 163, 74, 0.45);
+}
+
+/* Leaflet Map Pulsing Ring Animation */
+@keyframes mapPulse {
+  0% {
+    transform: scale(0.85);
+    box-shadow: 0 0 0 0 rgba(201, 163, 74, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 14px rgba(201, 163, 74, 0);
+  }
+  100% {
+    transform: scale(0.85);
+    box-shadow: 0 0 0 0 rgba(201, 163, 74, 0);
+  }
+}
+
+.leaflet-pulsing-pin {
+  animation: mapPulse 2s infinite cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 500ms ease-out forwards;
+}
+
+.animate-float {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s infinite;
+}
+
+/* Curtain Page Transition Wipe Animations */
+@keyframes wipeDown {
+  0% { transform: translateY(-100%); }
+  45% { transform: translateY(0); }
+  65% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+@keyframes wipeUp {
+  0% { transform: translateY(100%); }
+  45% { transform: translateY(0); }
+  65% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+.animate-wipe-down {
+  animation: wipeDown 650ms cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
+.animate-wipe-up {
+  animation: wipeUp 650ms cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
+/* Lenis Smooth Scroll Rules */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: #FDFBF7;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #D4AF37;
+  background: #C59B27;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #8B0000;
+  background: #4A121A;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Professional Print / PDF Export Styling */
+@media print {
+  header,
+  footer,
+  #webgl-canvas-container,
+  .custom-cursor-dot,
+  .custom-cursor-ring,
+  button[aria-label="Ask Tansen AI"],
+  .no-print {
+    display: none !important;
+  }
+
+  body, html, #root, main {
+    background: #FFFFFF !important;
+    color: #111827 !important;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  #itinerary-results {
+    padding: 0 !important;
+  }
+
+  .shadow-2xl, .shadow-xl, .shadow-lg, .shadow-md, .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  .rounded-3xl, .rounded-2xl {
+    border-radius: 8px !important;
+  }
+
+  .break-inside-avoid, [class*="p-6"] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }

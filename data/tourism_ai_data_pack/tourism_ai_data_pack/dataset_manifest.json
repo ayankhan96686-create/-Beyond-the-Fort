@@ -1,0 +1,28 @@
+{
+  "pack_name": "Tourism AI Multi-Agent Data Pack - Gwalior MVP",
+  "generated_from_uploaded_files": [
+    "AI_Synergy_Venator_Large_Dataset_500.csv",
+    "Venator_Real_Local_Businesses_Ratings_Gwalior.csv"
+  ],
+  "created_files": [
+    "AI_Synergy_Venator_Large_Dataset_500.csv",
+    "Venator_Real_Local_Businesses_Ratings_Gwalior.csv",
+    "source_backed_seed_records_review_required.csv",
+    "synthetic_placeholder_records_test_only.csv",
+    "gwalior_combined_candidate_catalog.csv",
+    "interest_taxonomy.csv",
+    "constraint_rules.csv",
+    "agent_test_cases.csv",
+    "routing_test_fixtures_SYNTHETIC_ONLY.csv",
+    "source_registry_review_required.csv",
+    "data_quality_report.csv",
+    "README.md",
+    "ANTIGRAVITY_DATA_INTEGRATION_PROMPT.txt"
+  ],
+  "safety_rules": [
+    "Source-backed seed means a source URL or source-listed lead exists; individual facts still require verification.",
+    "Synthetic placeholders are testing/demo data only, never real venues.",
+    "No new real-world hours, coordinates, prices, ratings, or source URLs were invented in this pack.",
+    "Routing fixture times are synthetic and must never be displayed as real travel times."
+  ]
+}

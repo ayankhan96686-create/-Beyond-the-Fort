@@ -33,20 +33,20 @@ export default function PlaceDetailModal({
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 text-white">
-            <span className="text-[10px] bg-[#D4AF37] text-[#5E0000] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="text-xs bg-[#D4AF37] text-[#2B070C] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               {selectedLanguage === 'hi' ? spotDetailModal.tierLabelHi : spotDetailModal.tierLabel}
             </span>
-            <h3 className="font-heritage text-xl font-bold mt-1">
+            <h3 className="font-heritage text-2xl font-bold mt-1.5 text-white">
               {selectedLanguage === 'hi' ? spotDetailModal.hindiName : spotDetailModal.name}
             </h3>
-            <p className="text-xs text-[#F5D77F]">
+            <p className="text-sm font-medium text-[#F3D279] mt-0.5">
               {selectedLanguage === 'hi' ? spotDetailModal.name : spotDetailModal.hindiName}
             </p>
           </div>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div className="flex flex-wrap items-center gap-3 text-xs">
+        <div className="p-6 sm:p-7 space-y-4">
+          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-medium">
             <span className="flex items-center gap-1 text-stone-600 bg-stone-100 px-2.5 py-1 rounded-lg">
               <Clock className="w-3.5 h-3.5 text-[#8B0000]" />
               {spotDetailModal.duration}m {t('visit')}

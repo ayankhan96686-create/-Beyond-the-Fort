@@ -1,0 +1,16 @@
+﻿interest_id,matching_keywords,intended_use,data_status
+heritage,history; architecture; monument; fort; palace; temple; historic building,Attraction or experience category matching,conceptual search taxonomy
+history,history; historic; memorial; dynasty; archaeological,Attraction or experience category matching,conceptual search taxonomy
+architecture,architecture; palace; temple; fort; building; sculpture,Attraction or experience category matching,conceptual search taxonomy
+museum,museum; gallery; collection; archaeology; music museum,Attraction or experience category matching,conceptual search taxonomy
+culture,culture; festival; music; craft; performance; local tradition,Attraction or experience category matching,conceptual search taxonomy
+food,food; local food; sweet; snack; street food; restaurant,Business or experience category matching,conceptual search taxonomy
+cafe,cafe; coffee; bakery; snacks; lounge,Local business category matching,conceptual search taxonomy
+shopping,market; shopping; textile; handloom; gift shop; bazaar,Local business or shopping area matching,conceptual search taxonomy
+handicrafts,handicraft; craft; carpet; sandstone; lacquerware; handloom,Craft listing category matching,conceptual search taxonomy
+nature,nature; scenic; reservoir; dam; garden; zoo; outdoors,Attraction category matching,conceptual search taxonomy
+family,family; zoo; garden; family dining; accessible outing,Candidate category matching; verify suitability,conceptual search taxonomy
+photography,scenic; architecture; garden; fort; market,Optional preference matching,conceptual search taxonomy
+budget,budget; low-cost; free; entry fee; price range,Filter only when supported by price evidence,conceptual search taxonomy
+accessibility,step-free; wheelchair; mobility; accessible toilets; walking distance,Filter only when access data is actually available,conceptual search taxonomy
+local_experience,local guide; food experience; craft sector; market; cultural experience,Experience category matching,conceptual search taxonomy

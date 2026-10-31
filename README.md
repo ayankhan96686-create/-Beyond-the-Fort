@@ -8,7 +8,7 @@
 
 ## 📌 Executive Summary
 
-**System Readiness & Audit Status (2026-10-30):** Full production verification complete. The active stack is Node.js Express (Port 3000) + Flask/LangGraph Multi-Agent Engine (Port 8000) + MongoDB Atlas Cloud Cluster + Google Gemini 3.5 Flash with resilient multi-model cascading and local curated knowledge fallbacks. All 6 LangGraph agents are verified and functional. See [FINAL_SYSTEM_READINESS_REPORT.md](FINAL_SYSTEM_READINESS_REPORT.md), [AI_CHATBOT_ROOT_CAUSE_REPORT.md](AI_CHATBOT_ROOT_CAUSE_REPORT.md), [AI_AGENT_EXECUTION_REPORT.md](AI_AGENT_EXECUTION_REPORT.md), [SERVICE_STARTUP_GUIDE.md](SERVICE_STARTUP_GUIDE.md), and [PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md).
+**System Architecture (2026-10-31):** Full production consolidation complete. The application runs as a **single unified Node.js server on Port 5173** (http://localhost:5173/). Ports 3000 and 8000 are decommissioned. Express mounts the React 19 frontend (Vite middleware in dev, static dist in prod), REST APIs, and in-process **LangGraph.js 6-agent engine** with Gemini and Mapbox routing. See [MD/SINGLE_PORT_ARCHITECTURE.md](MD/SINGLE_PORT_ARCHITECTURE.md).
 
 **Authentication update (2026-10-30):** Express now provides registration/login/logout, scrypt password hashing, HttpOnly sessions, CSRF checks, user/admin authorization, and owner-scoped itinerary storage. Reset and email verification are unavailable because no mail delivery service is configured. See [AUTHENTICATION.md](AUTHENTICATION.md), [AUTHORIZATION.md](AUTHORIZATION.md), and [FINAL_SECURITY_AND_AUTH_REPORT.md](FINAL_SECURITY_AND_AUTH_REPORT.md).
 
@@ -109,18 +109,19 @@ The optional integration test makes a live Gemini call and may consume provider 
 .\.venv\Scripts\python.exe -m pytest -q .\multiagent-engine -m integration
 ```
 
-### Starting the Application
+### Starting the Application (Single-Port :5173)
 
-Run each service in a separate terminal from the repository root:
+Launch the unified system with one command from the repository root:
 ```bash
+# Development (with Vite HMR)
+npm run dev
+
+# Production
+npm run build
 npm start
 ```
 
-```powershell
-.\.venv\Scripts\python.exe .\multiagent-engine\server.py
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 Create an account at `/register` to build and save personalized itineraries. The first administrator can be bootstrapped by setting `INITIAL_ADMIN_EMAIL` before registration; see [AUTHORIZATION.md](AUTHORIZATION.md). Local JSON account and itinerary files are created under `data/` and ignored by Git. They are not suitable for a multi-instance production deployment.
 

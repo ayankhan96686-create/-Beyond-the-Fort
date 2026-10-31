@@ -58,6 +58,20 @@ function saveUsers() {
   fs.writeFileSync(tmp, JSON.stringify(users, null, 2), { mode: 0o600, flag: 'wx' });
   try { fs.renameSync(tmp, USER_FILE); } catch (error) { try { fs.unlinkSync(tmp); } catch {} throw error; }
   try { fs.chmodSync(USER_FILE, 0o600); } catch {}
+  try {
+    const db = require('../config/db');
+    const col = db.getUsersCollection();
+    if (col && Array.isArray(users) && users.length > 0) {
+      const ops = users.map(u => ({
+        updateOne: {
+          filter: { id: u.id },
+          update: { $set: { ...u } },
+          upsert: true
+        }
+      }));
+      col.bulkWrite(ops).catch(() => {});
+    }
+  } catch {}
 }
 function parseCookies(header = '') {
   return Object.fromEntries(header.split(';').map(x => x.trim()).filter(Boolean).map(x => {
@@ -230,7 +244,7 @@ async function requestPasswordReset(email, appUrl = '') {
     return { code: 'AUTH_UNAVAILABLE', error: 'Account service is unavailable. Please try again later.' };
   }
 
-  const baseUrl = process.env.APP_PUBLIC_URL || appUrl || 'http://localhost:3000';
+  const baseUrl = process.env.APP_PUBLIC_URL || appUrl || 'http://localhost:5173';
   const resetUrl = `${baseUrl.replace(/\/$/, '')}/reset-password?token=${rawToken}`;
 
   try {

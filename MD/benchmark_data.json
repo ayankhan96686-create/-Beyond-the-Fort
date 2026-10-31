@@ -1,0 +1,182 @@
+[
+  {
+    "url": "https://www.australia.com/",
+    "category": "Tourism & Travel",
+    "name": "Australia.com",
+    "status": 200,
+    "inspectedAt": "2026-10-31T08:39:36.806Z",
+    "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\benchmark_screenshots\\australia_com.png",
+    "metadata": {
+      "title": "Travel to Australia - Australian Tourism Information - Tourism Australia",
+      "h1": "Come and say G'day",
+      "bodyFont": "Haffer-Regular, Helvetica, Arial, sans-serif, -apple-system,",
+      "h1Font": "P22Mackinac-Medium, Georgia, serif",
+      "bg": "rgb(255, 255, 255)",
+      "color": "rgb(85, 85, 85)",
+      "navLinksCount": 14,
+      "imagesCount": 338,
+      "hasCanvas": false,
+      "hasVideo": false
+    }
+  },
+  {
+    "url": "https://www.visiticeland.com/",
+    "category": "Tourism & Travel",
+    "name": "Visit Iceland",
+    "status": 200,
+    "inspectedAt": "2026-10-31T08:39:39.908Z",
+    "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\benchmark_screenshots\\visit_iceland.png",
+    "metadata": {
+      "title": "Visit Iceland | The official travel guide to Iceland",
+      "h1": "Visit Iceland — The official travel guide to Iceland.",
+      "bodyFont": "\"Stafir Sans\", system-ui, sans-serif",
+      "h1Font": "\"Stafir Sans\", system-ui, sans-serif",
+      "bg": "rgb(255, 255, 255)",
+      "color": "rgb(13, 13, 13)",
+      "navLinksCount": 2,
+      "imagesCount": 17,
+      "hasCanvas": false,
+      "hasVideo": false
+    }
+  },
+  {
+    "url": "https://www.japan.travel/en/",
+    "category": "Tourism & Travel",
+    "name": "Japan Travel",
+    "status": 200,
+    "inspectedAt": "2026-10-31T08:39:43.810Z",
+    "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\benchmark_screenshots\\japan_travel.png",
+    "metadata": {
+      "title": "Japan National Tourism Organization (JNTO) Official India Website",
+      "h1": "Travel Japan - The Official Japan Guide",
+      "bodyFont": "proxima-nova, sans-serif",
+      "h1Font": "proxima-nova, sans-serif",
+      "bg": "rgba(0, 0, 0, 0)",
+      "color": "rgb(0, 0, 0)",
+      "navLinksCount": 0,
+      "imagesCount": 208,
+      "hasCanvas": false,
+      "hasVideo": false
+    }
+  },
+  {
+    "url": "https://www.incredibleindia.gov.in/",
+    "category": "Tourism & Travel",
+    "name": "Incredible India",
+    "status": 200,
+    "inspectedAt": "2026-10-31T08:39:51.709Z",
+    "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\benchmark_screenshots\\incredible_india.png",
+    "metadata": {
+      "title": "Discover Incredible India: Travel Guide & Tourism Info | Incredible India",
+      "h1": "Create an account",
+      "bodyFont": "Montserrat",
+      "h1Font": "Montserrat",
+      "bg": "rgb(255, 255, 255)",
+      "color": "rgb(0, 0, 0)",
+      "navLinksCount": 414,
+      "imagesCount": 388,
+      "hasCanvas": false,
+      "hasVideo": true
+    }
+  },
+  {
+    "url": "https://locomotive.ca/",
+    "category": "Creative & Animation",
+    "name": "Locomotive",
+    "status": 403,
+    "inspectedAt": "2026-10-31T08:39:54.786Z",
+    "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\benchmark_screenshots\\locomotive.png",
+    "metadata": {
+      "title": "Just a moment...",
+      "h1": "locomotive.ca",
+      "bodyFont": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Ro",
+      "h1Font": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Ro",
+      "bg": "rgb(0, 0, 0)",
+      "color": "rgb(242, 242, 242)",
+      "navLinksCount": 0,
+      "imagesCount": 1,
+      "hasCanvas": false,
+      "hasVideo": false
+    }
+  },
+  {
+    "url": "https://activetheory.net/",
+    "category": "Creative & WebGL",
+    "name": "Active Theory",
+    "status": 200,
+    "inspectedAt": "2026-10-31T08:39:57.024Z",
+    "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\benchmark_screenshots\\active_theory.png",
+    "metadata": {
+      "title": "Active Theory · Creative Digital Experiences",
+      "h1": "",
+      "bodyFont": "\"Times New Roman\"",
+      "h1Font": "",
+      "bg": "rgb(0, 0, 0)",
+      "color": "rgb(0, 0, 0)",
+      "navLinksCount": 0,
+      "imagesCount": 0,
+      "hasCanvas": false,
+      "hasVideo": false
+    }
+  },
+  {
+    "url": "https://www.aesop.com/",
+    "category": "Editorial & Luxury",
+    "name": "Aesop",
+    "status": 403,
+    "inspectedAt": "2026-10-31T08:39:59.635Z",
+    "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\benchmark_screenshots\\aesop.png",
+    "metadata": {
+      "title": "Just a moment...",
+      "h1": "www.aesop.com",
+      "bodyFont": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Ro",
+      "h1Font": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Ro",
+      "bg": "rgb(0, 0, 0)",
+      "color": "rgb(242, 242, 242)",
+      "navLinksCount": 0,
+      "imagesCount": 1,
+      "hasCanvas": false,
+      "hasVideo": false
+    }
+  },
+  {
+    "url": "https://linear.app/",
+    "category": "Premium Product",
+    "name": "Linear",
+    "status": 200,
+    "inspectedAt": "2026-10-31T08:40:05.145Z",
+    "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\benchmark_screenshots\\linear.png",
+    "metadata": {
+      "title": "Linear – The system for product development",
+      "h1": "The product development\nsystem for teams and agents\nThe product development system for teams and age",
+      "bodyFont": "\"Inter Variable\", \"SF Pro Display\", -apple-system, BlinkMacS",
+      "h1Font": "\"Inter Variable\", \"SF Pro Display\", -apple-system, BlinkMacS",
+      "bg": "rgb(8, 9, 10)",
+      "color": "rgb(247, 248, 248)",
+      "navLinksCount": 9,
+      "imagesCount": 38,
+      "hasCanvas": false,
+      "hasVideo": false
+    }
+  },
+  {
+    "url": "https://stripe.com/",
+    "category": "Premium Product",
+    "name": "Stripe",
+    "status": 200,
+    "inspectedAt": "2026-10-31T08:40:09.957Z",
+    "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\benchmark_screenshots\\stripe.png",
+    "metadata": {
+      "title": "Stripe | Financial Infrastructure to Grow Your Revenue",
+      "h1": "Financial infrastructure to grow your revenue. Accept payments, offer financial services and impleme",
+      "bodyFont": "sohne-var, \"SF Pro Display\", sans-serif",
+      "h1Font": "sohne-var, \"SF Pro Display\", sans-serif",
+      "bg": "rgba(0, 0, 0, 0)",
+      "color": "rgb(0, 0, 0)",
+      "navLinksCount": 11,
+      "imagesCount": 36,
+      "hasCanvas": true,
+      "hasVideo": false
+    }
+  }
+]

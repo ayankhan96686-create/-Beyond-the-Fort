@@ -1,0 +1,9 @@
+﻿dataset,rows,columns,purpose,notes
+AI_Synergy_Venator_Large_Dataset_500.csv,502,19,uploaded source / derived candidate catalog,See README; quality flags must be honoured.
+Venator_Real_Local_Businesses_Ratings_Gwalior.csv,25,17,uploaded source / derived candidate catalog,See README; quality flags must be honoured.
+gwalior_combined_candidate_catalog.csv,57,26,uploaded source / derived candidate catalog,See README; quality flags must be honoured.
+AI_Synergy_Venator_Large_Dataset_500.csv,32,19,source-backed seed records only,Details require verification; not automatically verified.
+AI_Synergy_Venator_Large_Dataset_500.csv,470,19,synthetic placeholder records,TEST ONLY; exclude from live factual recommendations.
+Venator_Real_Local_Businesses_Ratings_Gwalior.csv,25,17,missing latitude count,Coordinates cannot be used for routing until populated from an allowed source.
+Venator_Real_Local_Businesses_Ratings_Gwalior.csv,10,17,missing business hours count,Do not infer missing hours.
+Venator_Real_Local_Businesses_Ratings_Gwalior.csv,15,17,missing business source URL count,Need source URL or keep claim unverified.

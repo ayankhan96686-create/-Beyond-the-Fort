@@ -12,6 +12,20 @@ function write(rows) {
   fs.writeFileSync(tmp, JSON.stringify(rows, null, 2), { mode: 0o600, flag: 'wx' });
   try { fs.renameSync(tmp, file); } catch (error) { try { fs.unlinkSync(tmp); } catch {} throw error; }
   try { fs.chmodSync(file, 0o600); } catch {}
+  try {
+    const db = require('../config/db');
+    const col = db.getItinerariesCollection();
+    if (col && Array.isArray(rows) && rows.length > 0) {
+      const ops = rows.map(r => ({
+        updateOne: {
+          filter: { id: r.id },
+          update: { $set: { ...r } },
+          upsert: true
+        }
+      }));
+      col.bulkWrite(ops).catch(() => {});
+    }
+  } catch {}
 }
 function list(userId) {
   const rows = read();

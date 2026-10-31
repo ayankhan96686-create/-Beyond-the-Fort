@@ -18,6 +18,8 @@ class DatabaseService {
     this.client = null;
     this.db = null;
     this.collection = null;
+    this.usersCollection = null;
+    this.itinerariesCollection = null;
     this.memoryStore = [];
     this.init();
   }
@@ -53,6 +55,8 @@ class DatabaseService {
       await this.client.db('admin').command({ ping: 1 });
       this.db = this.client.db('tourism_gwalior');
       this.collection = this.db.collection('pois');
+      this.usersCollection = this.db.collection('users');
+      this.itinerariesCollection = this.db.collection('itineraries');
 
       const count = await this.collection.countDocuments();
       if (count === 0 && this.memoryStore.length > 0) {
@@ -87,6 +91,14 @@ class DatabaseService {
 
   getAllPOIs() {
     return this.memoryStore;
+  }
+
+  getUsersCollection() {
+    return (this.db && this.isConnected) ? this.usersCollection : null;
+  }
+
+  getItinerariesCollection() {
+    return (this.db && this.isConnected) ? this.itinerariesCollection : null;
   }
 
   getAttractionById(id) {

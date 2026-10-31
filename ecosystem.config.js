@@ -1,5 +1,5 @@
 /**
- * PM2 Process Manager Configuration
+ * PM2 Process Manager Configuration — Unified Single-Port Architecture
  * Beyond the Fort — Team Venator
  * Production deployment for AWS EC2, DigitalOcean, or Linux VPS
  */
@@ -7,35 +7,18 @@
 module.exports = {
   apps: [
     {
-      name: 'beyond-fort-python',
-      cwd: './multiagent-engine',
-      script: '../.venv/bin/python',
-      args: 'server.py',
+      name: 'beyond-fort-unified',
+      cwd: './',
+      script: 'server.js',
       instances: 1,
       autorestart: true,
       watch: false,
-      max_memory_restart: '500M',
+      max_memory_restart: '1G',
       env: {
         NODE_ENV: 'production',
-        PORT: 8000,
-        PYTHONUNBUFFERED: '1'
-      }
-    },
-    {
-      name: 'beyond-fort-node',
-      cwd: './',
-      script: 'server.js',
-      instances: 'max',
-      exec_mode: 'cluster',
-      autorestart: true,
-      watch: false,
-      max_memory_restart: '800M',
-      env: {
-        NODE_ENV: 'production',
-        PORT: 3000,
+        PORT: 5173,
         TRUST_PROXY_HOPS: 1
       }
     }
   ]
 };
-

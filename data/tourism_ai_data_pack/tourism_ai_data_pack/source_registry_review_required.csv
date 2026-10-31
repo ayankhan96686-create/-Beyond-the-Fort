@@ -1,0 +1,9 @@
+﻿source_id,source_url,origin_dataset,listed_by_dataset,checked_in_this_pack_creation,source_review_status,allowed_use
+SRC001,https://gwalior.nic.in/en/tourist-places/,AI_Synergy_Venator_Large_Dataset_500.csv,yes,no,REQUIRES_MANUAL_CHECK,Starting point for human/source verification; not proof that each record field is verified
+SRC002,https://sd2.tourism.gov.in/DocumentRepoFiles/InceptionReport/INRa5e9451b-aea3-4c60-9484-bb0b095256f6.pdf,AI_Synergy_Venator_Large_Dataset_500.csv,yes,no,REQUIRES_MANUAL_CHECK,Starting point for human/source verification; not proof that each record field is verified
+SRC003,https://gwaliorsmartcity.org/smart-city-vision/about-gwalior/,AI_Synergy_Venator_Large_Dataset_500.csv,yes,no,REQUIRES_MANUAL_CHECK,Starting point for human/source verification; not proof that each record field is verified
+SRC004,https://www.visitgwalior.com/food,AI_Synergy_Venator_Large_Dataset_500.csv,yes,no,REQUIRES_MANUAL_CHECK,Starting point for human/source verification; not proof that each record field is verified
+SRC005,https://gwalior.nic.in/en/one-district-one-product/,AI_Synergy_Venator_Large_Dataset_500.csv,yes,no,REQUIRES_MANUAL_CHECK,Starting point for human/source verification; not proof that each record field is verified
+SRC006,,Venator_Real_Local_Businesses_Ratings_Gwalior.csv,Business listing search (Google Maps data),no,SOURCE_URL_MISSING_OR_PROVIDER_LABEL_ONLY,Do not treat provider label alone as direct evidence; store a traceable URL if approved
+SRC007,,Venator_Real_Local_Businesses_Ratings_Gwalior.csv,BIZIT local business directory,no,SOURCE_URL_MISSING_OR_PROVIDER_LABEL_ONLY,Do not treat provider label alone as direct evidence; store a traceable URL if approved
+SRC008,,Venator_Real_Local_Businesses_Ratings_Gwalior.csv,Tripadvisor,no,SOURCE_URL_MISSING_OR_PROVIDER_LABEL_ONLY,Do not treat provider label alone as direct evidence; store a traceable URL if approved

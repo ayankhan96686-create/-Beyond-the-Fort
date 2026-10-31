@@ -1,0 +1,21 @@
+﻿test_case_id,scenario,city,start_time,available_minutes,return_deadline,return_location,interests,budget_inr,transport_mode,fixture_setup,expected_behavior,record_type
+TC001,valid heritage request,Jaipur,10:00,360,16:00,Jaipur Railway Station,heritage,1000,mixed,normal request with fully configured fixture data,process_request,SYNTHETIC_TEST
+TC002,missing city,,10:00,360,16:00,Jaipur Railway Station,heritage,1000,mixed,required city missing,validation_error,SYNTHETIC_TEST
+TC003,missing return location,Jaipur,10:00,360,16:00,,heritage,1000,mixed,return endpoint missing,validation_error,SYNTHETIC_TEST
+TC004,invalid start time,Jaipur,25:90,360,16:00,Jaipur Railway Station,heritage,1000,mixed,malformed time,validation_error,SYNTHETIC_TEST
+TC005,deadline before start,Jaipur,15:00,180,14:00,Jaipur Railway Station,heritage,1000,mixed,deadline precedes start,validation_error_or_infeasible,SYNTHETIC_TEST
+TC006,zero duration,Jaipur,10:00,0,16:00,Jaipur Railway Station,heritage,1000,mixed,duration must be positive,validation_error,SYNTHETIC_TEST
+TC007,no matching attractions,Jaipur,10:00,180,14:00,Railway Station,underwater_diving,1000,mixed,no candidate matches requested category in fixture,no_matching_options,SYNTHETIC_TEST
+TC008,return deadline violated,Jaipur,10:00,360,16:00,Railway Station,heritage,1000,driving,candidate route returns at 16:20 in test fixture,infeasible_plan,SYNTHETIC_TEST
+TC009,routing API timeout,Gwalior,09:00,300,14:00,Gwalior Railway Station,heritage,1500,driving,routing provider raises timeout,warning_and_safe_fallback,SYNTHETIC_TEST
+TC010,missing source URL,Gwalior,09:00,240,13:00,Gwalior Railway Station,culture,800,mixed,factual record lacks source URL,claim_not_verified,SYNTHETIC_TEST
+TC011,strict budget exceeded,Gwalior,10:00,240,14:00,Gwalior Railway Station,food,200,mixed,supported costs exceed strict budget,reject_or_replan,SYNTHETIC_TEST
+TC012,unknown price under strict budget,Gwalior,10:00,240,14:00,Gwalior Railway Station,food,200,mixed,one candidate price unavailable,exclude_or_warn,SYNTHETIC_TEST
+TC013,synthetic placeholder candidate,Gwalior,10:00,180,13:00,Railway Station,shopping,500,walking,candidate record has Synthetic placeholder record_type,exclude_from_real_recommendations,SYNTHETIC_TEST
+TC014,closed attraction in fixture,Gwalior,17:00,120,19:00,Railway Station,heritage,500,driving,fixture says attraction closes before arrival,exclude_closed_stop,SYNTHETIC_TEST
+TC015,available time smaller than route,Jaipur,10:00,30,12:00,Railway Station,heritage,500,mixed,candidate route requires 55 minutes without visit,infeasible_plan,SYNTHETIC_TEST
+TC016,no API keys in demo mode,Gwalior,10:00,180,13:00,Railway Station,culture,500,mixed,DEMO_MODE=true and credentials absent,run_labelled_demo,SYNTHETIC_TEST
+TC017,unavailable LLM provider,Jaipur,10:00,180,13:00,Railway Station,heritage,500,mixed,LLM call fails,error_or_documented_fallback,SYNTHETIC_TEST
+TC018,safety buffer enforcement,Gwalior,10:00,240,14:00,Railway Station,heritage,500,mixed,estimated arrival equals deadline minus required buffer boundary,respect_configured_buffer,SYNTHETIC_TEST
+TC019,return endpoint is last leg,Gwalior,10:00,240,14:00,Railway Station,heritage,500,driving,planner omits final return travel leg,fail_validation_and_replan,SYNTHETIC_TEST
+TC020,API response schema,Jaipur,10:00,240,14:00,Railway Station,heritage,500,mixed,"response must include status, itinerary, evidence, warnings",schema_validation,SYNTHETIC_TEST

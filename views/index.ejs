@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -16,25 +16,10 @@
   <%- include('partials/navbar') %>
   <main class="heritage-main" id="home">
   <section class="heritage-hero" aria-labelledby="hero-heading">
-    <svg class="heritage-hero-art" viewBox="0 0 1800 720" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of Gwalior Fort above the city at sunset">
-      <defs>
-        <linearGradient id="fortSky" x2="0" y2="1"><stop stop-color="#c2945c"/><stop offset=".56" stop-color="#7c5240"/><stop offset="1" stop-color="#30251f"/></linearGradient>
-        <linearGradient id="fortStone" x2="0" y2="1"><stop stop-color="#d2aa70"/><stop offset="1" stop-color="#805039"/></linearGradient>
-        <linearGradient id="fortHill" x2="0" y2="1"><stop stop-color="#604332"/><stop offset="1" stop-color="#171815"/></linearGradient>
-        <pattern id="fortWindows" width="42" height="44" patternUnits="userSpaceOnUse"><path d="M14 44V27a7 7 0 0 1 14 0v17" fill="#422f27" opacity=".76"/><path d="M0 43h42" stroke="#eed19a" stroke-opacity=".22"/></pattern>
-      </defs>
-      <path fill="url(#fortSky)" d="M0 0h1800v720H0z"/><circle cx="1430" cy="178" r="94" fill="#f3d298" opacity=".55"/>
-      <path fill="#9a6748" opacity=".62" d="M0 470q240-95 470-45t480-25q245-90 420 8t430-22v334H0z"/>
-      <path fill="url(#fortHill)" d="M520 597q205-80 350-54 125-95 243-58 123-125 247-90 136-109 277-48 95-14 163 29v344H520z"/>
-      <g fill="url(#fortStone)" stroke="#e5c28a" stroke-opacity=".42" stroke-width="3">
-        <path d="M884 457h153v-94h38v94h100v-130h34v-45h38v45h34v130h101v-101h33v-43h39v43h35v101h140v-76h38v-38h39v38h38v76h69v96H884z"/>
-        <path d="M1090 327h31v-50h14v-40h24v40h14v50h30v21h-113zM1365 283h29v-49h15v-38h24v38h15v49h29v26h-112zM1537 349h26v-40h14v-33h22v33h14v40h27v20h-103z"/>
-        <path d="M1183 458v-71a36 36 0 0 1 72 0v71M1447 458v-58a30 30 0 0 1 60 0v58"/>
-      </g>
-      <path fill="url(#fortWindows)" d="M884 457h932v96H884z"/><path fill="#d7b378" opacity=".8" d="M889 456h930v13H889z"/>
-      <path fill="#241e19" d="M0 625q221-68 422-27 174-46 331 5 178-42 317 10 206-61 356 7 203-64 374 1v99H0z"/>
-      <g fill="#201d19" opacity=".88"><path d="M54 602h54v-43h8v-28h14v28h8v43h35v-64h8v-25h15v25h8v64h45v-53h8v-29h14v29h8v53h65v84H54z"/><path d="M1670 580h36v-53h10v-27h14v27h10v53h36v-45h10v-22h14v22h10v45h43v105h-183z"/></g>
-    </svg>
+    <div class="heritage-hero-art-img-wrap" style="position: absolute; inset: 0; z-index: 0; overflow: hidden;">
+      <img src="https://images.unsplash.com/photo-1599831104325-508b98453e92?auto=format&fit=crop&w=2160&q=88" alt="Gwalior Fort & Man Singh Palace towering on sandstone cliff" style="width: 100%; height: 100%; object-fit: cover; object-position: center; filter: brightness(0.65) contrast(1.1);">
+      <div style="position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(43,7,12,0.2) 0%, rgba(28,4,7,0.85) 100%);"></div>
+    </div>
     <div class="heritage-hero-wash"></div>
     <div class="heritage-hero-content">
       <div class="heritage-eyebrow" data-i18n="home.eyebrow"><span>✳</span> UNESCO CITY OF MUSIC · MADHYA PRADESH, INDIA</div>
@@ -43,6 +28,7 @@
       <div class="hero-actions">
         <a class="hero-primary" href="#discover"><span data-i18n="home.discoverCta">Discover Gwalior</span><span aria-hidden="true">↗</span></a>
         <a class="hero-secondary" href="#trip-planner"><span aria-hidden="true">▷</span><span data-i18n="home.planCta">Plan your visit</span></a>
+        <a class="hero-secondary" href="/app" style="background: rgba(197, 155, 39, 0.22); border-color: #F3D279; color: #F3D279;"><span aria-hidden="true">✦</span><span>Interactive 3D Experience</span></a>
       </div>
     </div>
     <div class="hero-caption"><span>26°13′48″N&nbsp; 78°10′26″E</span><span>THE HEART OF MADHYA PRADESH</span></div>
@@ -274,7 +260,18 @@
     </div>
   </section>
   </main>
-  <footer class="heritage-footer"><a class="heritage-brand" href="#home"><span class="brand-crest" aria-hidden="true">♜</span><span><strong>Beyond the Fort</strong><small>GWALIOR, INDIA</small></span></a><span>A city best discovered beyond the expected.</span><span>© 2026&nbsp; · &nbsp;MADE FOR THE CURIOUS</span></footer>
+  <footer class="heritage-footer" style="padding: 40px 24px; border-top: 1px solid rgba(197, 155, 39, 0.3); background: #1C0407; color: #FDFBF7; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;">
+    <a class="heritage-brand" href="#home" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #FDFBF7;">
+      <span class="brand-crest" aria-hidden="true" style="color: #F3D279; font-size: 24px;">♜</span>
+      <span><strong style="font-size: 18px; font-weight: 700; display: block;">Beyond the Fort</strong><small style="color: #F3D279; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;">UNESCO City of Music · Gwalior, India</small></span>
+    </a>
+    <div style="font-size: 12px; color: #d6cfc7; max-width: 480px; text-align: center;">
+      100% Free Public Digital Discoverability Platform. Calibrated with verified ASI operating hours and deterministic +25% transit safety buffer.
+    </div>
+    <div style="font-size: 12px; color: #a89f91;">
+      © 2026 Beyond the Fort · Made for the curious traveler
+    </div>
+  </footer>
 
   <script src="/vendor/leaflet/leaflet.js"></script>
   <script src="/js/agentProgress.js?v=planner-agents-1"></script>

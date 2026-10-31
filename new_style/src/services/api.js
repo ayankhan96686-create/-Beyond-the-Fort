@@ -99,6 +99,7 @@ export async function logoutUser() {
 
 export async function planItinerary(payload) {
   const today = new Date().toISOString().slice(0, 10);
+  const defaultQuery = payload?.query || 'Explore Gwalior fortresses, music traditions, and cultural heritage';
   const fullPayload = {
     city: 'Gwalior',
     date: today,
@@ -107,6 +108,9 @@ export async function planItinerary(payload) {
     available_minutes: 240,
     transport_mode: 'cab',
     companion: 'solo',
+    query: defaultQuery,
+    user_query: defaultQuery,
+    interests: ['heritage', 'music', 'food'],
     ...payload
   };
   const csrf = await getCsrfToken();

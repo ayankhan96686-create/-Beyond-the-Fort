@@ -50,7 +50,7 @@ test('accounts hash passwords, rotate sessions, enforce roles, CSRF, and itinera
   const protectedPage = await guest.request('/account', { redirect: 'manual' });
   assert.equal(protectedPage.status, 302);
   assert.match(protectedPage.headers.get('location'), /^\/login\?/);
-  const protectedResult = await guest.request('/api/v1/tourism-plan', { method: 'POST', body: { query: 'heritage' } });
+  const protectedResult = await guest.request('/api/itineraries', { method: 'POST', body: { itinerary: {} } });
   assert.equal(protectedResult.status, 401);
   const missingCsrf = await guest.request('/api/auth/register', { method: 'POST', csrf: false, body: { email: 'nobody@example.test', password: 'ExcellentPass123' } });
   assert.equal(missingCsrf.status, 403);

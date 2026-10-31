@@ -6,10 +6,10 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js",
-    "test": "node --test tests/acceptanceTests.test.js tests/agentProgress.test.js tests/i18n.test.js tests/security.test.js",
-    "start:all": "node scripts/start-all.js",
-    "dev:all": "node scripts/start-all.js"
+    "dev": "node server.js",
+    "start:lan": "node scripts/start-lan.js",
+    "build": "cd new_style && npm run build",
+    "test": "node --test tests/acceptanceTests.test.js tests/agentProgress.test.js tests/i18n.test.js tests/security.test.js"
   },
   "keywords": [
     "hackathon",
@@ -24,10 +24,16 @@
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
+    "@langchain/core": "^1.3.2",
+    "@langchain/langgraph": "^1.6.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "mongodb": "^7.7.0",
-    "nodemailer": "^10.3.1"
+    "nodemailer": "^10.3.1",
+    "vite": "^8.3.5"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.16.0"
   }
 }

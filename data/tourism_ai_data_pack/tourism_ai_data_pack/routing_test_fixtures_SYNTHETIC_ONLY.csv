@@ -1,0 +1,6 @@
+﻿route_fixture_id,origin_test_id,destination_test_id,travel_minutes,transport_mode,data_status,is_live_or_verified
+RTEST001,TEST_LOC_A,TEST_LOC_B,15,driving,SYNTHETIC_ONLY,False
+RTEST002,TEST_LOC_B,TEST_LOC_C,20,driving,SYNTHETIC_ONLY,False
+RTEST003,TEST_LOC_C,TEST_RETURN_POINT,25,driving,SYNTHETIC_ONLY,False
+RTEST004,TEST_LOC_A,TEST_LOC_B,30,walking,SYNTHETIC_ONLY,False
+RTEST005,TEST_LOC_B,TEST_LOC_C,35,walking,SYNTHETIC_ONLY,False

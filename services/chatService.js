@@ -33,9 +33,12 @@ async function send(req, res) {
   const message = body.message;
   if (typeof message !== 'string' || !message.trim()) return res.status(400).json({ status: 'error', message: 'Enter a message to continue.' });
   if (message.length > MAX_MESSAGE) return res.status(413).json({ status: 'error', message: `Messages must be ${MAX_MESSAGE} characters or fewer.` });
-  const conversationId = typeof body.conversationId === 'string' && /^[\w-]{1,80}$/.test(body.conversationId) ? body.conversationId : null;
-  if (!conversationId) return res.status(400).json({ status: 'error', message: 'Start a new conversation and try again.' });
-  if (isPlanningRequest(message, body.intent === 'plan') && !req.auth?.user) return res.status(401).json({ status: 'error', code: 'AUTH_REQUIRED', message: 'Sign in to generate a personalized itinerary.' });
+  if (body.conversationId !== undefined && (typeof body.conversationId !== 'string' || !/^[\w-]{1,80}$/.test(body.conversationId))) {
+    return res.status(400).json({ status: 'error', message: 'Invalid conversationId format.' });
+  }
+  const conversationId = body.conversationId || `conv-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+  // 100% Public Access: allow itinerary planning via chat without sign-in barrier
+
   const session = getSession(req, res);
   const history = session.conversations.get(conversationId) || [];
   const userMessage = message.trim();

@@ -1,0 +1,138 @@
+{
+  "testedAt": "2026-10-31T10:55:05.585Z",
+  "viewports": [
+    {
+      "id": "1920x1080",
+      "name": "Desktop Wide (1920x1080)",
+      "width": 1920,
+      "height": 1080,
+      "isMobile": false,
+      "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\responsive_1920x1080.png",
+      "hasHorizontalOverflow": false,
+      "status": "PASS"
+    },
+    {
+      "id": "1440x900",
+      "name": "Desktop Standard (1440x900)",
+      "width": 1440,
+      "height": 900,
+      "isMobile": false,
+      "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\responsive_1440x900.png",
+      "hasHorizontalOverflow": false,
+      "status": "PASS"
+    },
+    {
+      "id": "1366x768",
+      "name": "Laptop (1366x768)",
+      "width": 1366,
+      "height": 768,
+      "isMobile": false,
+      "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\responsive_1366x768.png",
+      "hasHorizontalOverflow": false,
+      "status": "PASS"
+    },
+    {
+      "id": "1024x768",
+      "name": "Tablet Landscape (1024x768)",
+      "width": 1024,
+      "height": 768,
+      "isMobile": false,
+      "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\responsive_1024x768.png",
+      "hasHorizontalOverflow": false,
+      "status": "PASS"
+    },
+    {
+      "id": "768x1024",
+      "name": "Tablet Portrait (768x1024)",
+      "width": 768,
+      "height": 1024,
+      "isMobile": true,
+      "hasTouch": true,
+      "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\responsive_768x1024.png",
+      "hasHorizontalOverflow": false,
+      "status": "PASS"
+    },
+    {
+      "id": "430x932",
+      "name": "iPhone 15 Pro Max (430x932)",
+      "width": 430,
+      "height": 932,
+      "isMobile": true,
+      "hasTouch": true,
+      "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\responsive_430x932.png",
+      "hasHorizontalOverflow": false,
+      "status": "PASS"
+    },
+    {
+      "id": "390x844",
+      "name": "iPhone 14 (390x844)",
+      "width": 390,
+      "height": 844,
+      "isMobile": true,
+      "hasTouch": true,
+      "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\responsive_390x844.png",
+      "hasHorizontalOverflow": false,
+      "status": "PASS"
+    },
+    {
+      "id": "360x800",
+      "name": "Android Standard (360x800)",
+      "width": 360,
+      "height": 800,
+      "isMobile": true,
+      "hasTouch": true,
+      "screenshot": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\responsive_360x800.png",
+      "hasHorizontalOverflow": false,
+      "status": "PASS"
+    }
+  ],
+  "errors": [],
+  "networkFailures": [],
+  "routes": [
+    {
+      "route": "home_hero",
+      "file": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\01_home_1920x1080.png",
+      "status": "PASS"
+    },
+    {
+      "route": "heritage_pillars",
+      "file": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\02_heritage_pillars_1920x1080.png",
+      "status": "PASS"
+    },
+    {
+      "route": "discover_places",
+      "file": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\03_discover_places_1920x1080.png",
+      "status": "PASS"
+    },
+    {
+      "route": "attraction_modal",
+      "file": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\04_attraction_modal_1920x1080.png",
+      "status": "PASS"
+    },
+    {
+      "route": "planning_studio",
+      "file": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\05_planning_studio_1920x1080.png",
+      "status": "PASS"
+    },
+    {
+      "route": "agent_progress_modal",
+      "file": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\06_agent_progress_modal_1920x1080.png",
+      "status": "PASS"
+    },
+    {
+      "route": "itinerary_results_and_map",
+      "file": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\07_itinerary_results_and_map_1920x1080.png",
+      "status": "PASS"
+    },
+    {
+      "route": "agents_command_center",
+      "file": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\08_agents_command_center_1920x1080.png",
+      "status": "PASS"
+    },
+    {
+      "route": "tansen_chatbot",
+      "file": "D:\\TOURISM AI MULTI-AGENT SYSTEM\\Time-Aware-Digital-Discoverability-Beyond-the-Fort\\MD\\screenshots\\09_tansen_chatbot_1920x1080.png",
+      "status": "PASS"
+    }
+  ]
+}

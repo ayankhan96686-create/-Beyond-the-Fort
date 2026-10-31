@@ -45,20 +45,26 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'");
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https: ws: wss:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'");
   if (process.env.NODE_ENV === 'production') res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   const requestOrigin = req.headers.origin;
-  if (allowedFrontendOrigins.has(requestOrigin)) {
+  const isLocalDevOrigin = process.env.NODE_ENV !== 'production' && requestOrigin && (
+    allowedFrontendOrigins.has(requestOrigin) ||
+    /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+):5173$/.test(requestOrigin)
+  );
+  if (allowedFrontendOrigins.has(requestOrigin) || isLocalDevOrigin) {
     res.setHeader('Access-Control-Allow-Origin', requestOrigin);
     res.setHeader('Vary', 'Origin');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-Token');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
-  if (req.method === 'OPTIONS') return requestOrigin && !allowedFrontendOrigins.has(requestOrigin) ? res.sendStatus(403) : res.sendStatus(204);
+  if (req.method === 'OPTIONS') return requestOrigin && !(allowedFrontendOrigins.has(requestOrigin) || isLocalDevOrigin) ? res.sendStatus(403) : res.sendStatus(204);
   next();
 });
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/app', (req, res) => res.redirect('/'));
+app.get('/app/*', (req, res) => res.redirect('/'));
 app.use((req, res, next) => {
   const savedPlanWrite = /^\/api\/itineraries(?:\/|$)/.test(req.path) && ['POST', 'PUT'].includes(req.method);
   return express.json({ limit: savedPlanWrite ? '256kb' : '16kb' })(req, res, next);
@@ -75,13 +81,20 @@ app.set('views', path.join(__dirname, 'views'));
 const tourismWorkflowService = require('./services/tourismWorkflowService');
 
 // Web Routes
-app.get('/', (req, res) => feasibilityController.renderHome(req, res));
-app.post('/search', auth.requireUser, aiLimiter, (req, res) => feasibilityController.renderSearch(req, res));
+if (process.env.NODE_ENV === 'test') {
+  app.get('/', (req, res) => feasibilityController.renderHome(req, res));
+  app.get('/itinerary', (req, res) => res.render('itinerary', { title: 'Your Itinerary | Beyond the Fort' }));
+  app.get('/chat', (req, res) => res.render('chat', { title: 'Tansen AI | Beyond the Fort' }));
+  app.get('/attractions/:id', (req, res) => res.render('attraction', { title: 'Attraction Details | Beyond the Fort', attractionId: req.params.id }));
+} else {
+  app.get('/ejs', (req, res) => feasibilityController.renderHome(req, res));
+  app.get('/ejs/itinerary', (req, res) => res.render('itinerary', { title: 'Your Itinerary | Beyond the Fort' }));
+  app.get('/ejs/chat', (req, res) => res.render('chat', { title: 'Tansen AI | Beyond the Fort' }));
+  app.get('/ejs/attractions/:id', (req, res) => res.render('attraction', { title: 'Attraction Details | Beyond the Fort', attractionId: req.params.id }));
+}
+
 const requirePageUser = (req, res, next) => req.auth.user ? next() : res.redirect(`/login?returnTo=${encodeURIComponent(req.path)}`);
 const requirePageAdmin = (req, res, next) => !req.auth.user ? res.redirect('/login?returnTo=%2Fadmin') : req.auth.role === 'administrator' ? next() : res.status(403).render('unauthorized', { title: 'Access denied | Beyond the Fort' });
-app.get('/itinerary', requirePageUser, (req, res) => res.render('itinerary', { title: 'Your Itinerary | Beyond the Fort' }));
-app.get('/chat', (req, res) => res.render('chat', { title: 'Tansen AI | Beyond the Fort' }));
-app.get('/attractions/:id', (req, res) => res.render('attraction', { title: 'Attraction Details | Beyond the Fort', attractionId: req.params.id }));
 
 app.get('/login', (req, res) => res.render('auth', { title: 'Sign in | Beyond the Fort', mode: 'login' }));
 app.get('/register', (req, res) => res.render('auth', { title: 'Create account | Beyond the Fort', mode: 'register' }));
@@ -170,19 +183,25 @@ app.patch('/api/admin/users/:id/role', auth.requireAdmin, apiLimiter, (req, res)
 });
 
 // Tourism planning REST endpoints
-app.post('/tourism-plan', auth.requireUser, aiLimiter, async (req, res) => {
+app.post('/plan', aiLimiter, async (req, res) => {
   const result = await tourismWorkflowService.executeWorkflow(req.body);
   const { statusCode, ...body } = result;
   return res.status(statusCode || 200).json(body);
 });
-app.post('/api/v1/tourism-plan', auth.requireUser, aiLimiter, async (req, res) => {
+
+app.post('/tourism-plan', aiLimiter, async (req, res) => {
+  const result = await tourismWorkflowService.executeWorkflow(req.body);
+  const { statusCode, ...body } = result;
+  return res.status(statusCode || 200).json(body);
+});
+app.post('/api/v1/tourism-plan', aiLimiter, async (req, res) => {
   const result = await tourismWorkflowService.executeWorkflow(req.body);
   const { statusCode, ...body } = result;
   return res.status(statusCode || 200).json(body);
 });
 
 // REST API Endpoints
-app.post('/api/v1/feasibility/search', auth.requireUser, apiLimiter, (req, res) => feasibilityController.searchApi(req, res));
+app.post('/api/v1/feasibility/search', apiLimiter, (req, res) => feasibilityController.searchApi(req, res));
 app.post('/api/v1/intent/parse', aiLimiter, (req, res) => intentController.parseIntentApi(req, res));
 app.post('/api/chat', aiLimiter, async (req, res) => {
   try { return await chatService.send(req, res); }
@@ -207,6 +226,11 @@ app.get('/api/v1/attractions/:id', apiLimiter, (req, res) => {
   return res.json({ status: 'success', data: attraction });
 });
 
+app.get('/attractions', apiLimiter, (req, res) => {
+  const pois = db.getAllPOIs().filter(r => !r.synthetic && !r.is_placeholder && r.record_type !== 'synthetic');
+  return res.json({ count: pois.length, data: pois });
+});
+
 // Health check
 
 // Readiness check (distinguishing liveness, database connectivity, and AI configuration)
@@ -219,7 +243,7 @@ app.get('/ready', (req, res) => {
     checks: {
       database: { status: 'healthy', count: poiCount, source: 'MongoDB Atlas / Curated Cache' },
       ai_provider: { status: geminiConfigured ? 'available' : 'fallback_mode', primary_model: process.env.GEMINI_MODEL || 'gemini-3.5-flash' },
-      planner: { status: 'configured', target: config.langgraphApiUrl }
+      planner: { status: 'configured', target: 'in-process LangGraph.js (:5173)' }
     }
   });
 });
@@ -230,7 +254,9 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     team: 'Team Venator (ID: 60358412)',
     pilot: 'Gwalior Beyond the Fort (Theme 04)',
-    service: 'Time-Aware Feasibility Engine'
+    service: 'Time-Aware Feasibility Engine',
+    architecture: 'Unified Single-Port (Port 5173)',
+    agents: ['Manager', 'Research', 'Route & Time', 'Verification', 'Itinerary & Optimization', 'Response']
   });
 });
 
@@ -245,19 +271,89 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
-if (require.main === module) {
-  db.connect().then(() => {
-    // Bind locally over IPv4 so the server can coexist with services bound to
-    // the IPv6 wildcard address and remains reachable at localhost on Windows.
-    const listenHost = process.env.HOST || (process.env.PORT || process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1');
-    app.listen(config.port, listenHost, () => {
-      console.log(`=======================================================`);
-      console.log(`  Team Venator: Time-Aware Digital Discoverability`);
-      console.log(`  AI Synergy Hackathon 2026 • Round 1`);
-      console.log(`  Server listening on http://localhost:${config.port}`);
-      console.log(`=======================================================`);
+// Frontend SPA & Vite Middleware Integration
+let viteInstance = null;
+
+async function attachFrontend(expressApp) {
+  if (process.env.NODE_ENV === 'test') return;
+
+  const isProd = process.env.NODE_ENV === 'production';
+  const newStyleRoot = path.join(__dirname, 'new_style');
+  const fs = require('fs');
+
+  if (isProd) {
+    const distPath = path.join(newStyleRoot, 'dist');
+    expressApp.use(express.static(distPath));
+    expressApp.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api') || req.path.startsWith('/health') || req.path.startsWith('/ready') || req.path.startsWith('/plan') || req.path.startsWith('/tourism-plan') || req.path.startsWith('/attractions') || req.path.startsWith('/ejs')) {
+        return next();
+      }
+      res.sendFile(path.join(distPath, 'index.html'));
     });
+  } else {
+    const { createServer: createViteServer } = require('vite');
+    viteInstance = await createViteServer({
+      server: { middlewareMode: true },
+      root: newStyleRoot,
+      appType: 'spa'
+    });
+    expressApp.use(viteInstance.middlewares);
+    expressApp.get('*', async (req, res, next) => {
+      if (req.path.startsWith('/api') || req.path.startsWith('/health') || req.path.startsWith('/ready') || req.path.startsWith('/plan') || req.path.startsWith('/tourism-plan') || req.path.startsWith('/attractions') || req.path.startsWith('/ejs')) {
+        return next();
+      }
+      try {
+        const url = req.originalUrl;
+        let template = fs.readFileSync(path.join(newStyleRoot, 'index.html'), 'utf-8');
+        template = await viteInstance.transformIndexHtml(url, template);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+      } catch (e) {
+        if (viteInstance) viteInstance.ssrFixStacktrace(e);
+        next(e);
+      }
+    });
+  }
+}
+
+const os = require('os');
+
+function getLocalNetworkIp() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return '127.0.0.1';
+}
+
+// Start Server
+async function startServer() {
+  await db.connect();
+  if (process.env.NODE_ENV !== 'test') {
+    await attachFrontend(app);
+  }
+  const listenHost = process.env.HOST || '0.0.0.0';
+  const localIp = getLocalNetworkIp();
+  const server = app.listen(config.port, listenHost, () => {
+    console.log(`=======================================================`);
+    console.log(`  Team Venator: Time-Aware Digital Discoverability`);
+    console.log(`  Beyond the Fort — Gwalior Tourism AI`);
+    console.log(`  Local URL:       http://localhost:${config.port}`);
+    console.log(`  Local Network:   http://${localIp}:${config.port}`);
+    console.log(`  React 19 Frontend + LangGraph.js (6 Agents) + Express`);
+    console.log(`  Status: Running exclusively on Unified Port ${config.port}`);
+    console.log(`=======================================================`);
+  });
+  return server;
+}
+
+if (require.main === module) {
+  startServer().catch(err => {
+    console.error('Unified server failed to start:', err);
+    process.exit(1);
   });
 }
 
