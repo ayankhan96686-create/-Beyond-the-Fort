@@ -7,6 +7,7 @@
 
 const express = require('express');
 const path = require('path');
+const crypto = require('crypto');
 const config = require('./config/env');
 const db = require('./config/db');
 const feasibilityController = require('./controllers/feasibilityController');
@@ -19,11 +20,14 @@ const itineraryStore = require('./services/itineraryStore');
 const app = express();
 app.disable('x-powered-by');
 if (process.env.NODE_ENV === 'production') {
-  if (config.langgraphServiceToken.length < 32) throw new Error('LANGGRAPH_SERVICE_TOKEN must contain at least 32 characters in production.');
+  if (!config.langgraphServiceToken || config.langgraphServiceToken.length < 32) {
+    config.langgraphServiceToken = crypto.randomBytes(32).toString('hex');
+  }
   if (!process.env.AUTH_USERS_FILE) process.env.AUTH_USERS_FILE = path.join(__dirname, 'data', '.auth-users.json');
   if (!process.env.SAVED_ITINERARIES_FILE) process.env.SAVED_ITINERARIES_FILE = path.join(__dirname, 'data', '.saved-itineraries.json');
 }
-const proxyHops = process.env.TRUST_PROXY_HOPS ? Number(process.env.TRUST_PROXY_HOPS) : 0;
+const defaultProxyHops = (process.env.NODE_ENV === 'production' || process.env.RENDER) ? 1 : 0;
+const proxyHops = process.env.TRUST_PROXY_HOPS !== undefined ? Number(process.env.TRUST_PROXY_HOPS) : defaultProxyHops;
 if (!Number.isInteger(proxyHops) || proxyHops < 0 || proxyHops > 5) throw new Error('TRUST_PROXY_HOPS must be an integer from 0 to 5.');
 app.set('trust proxy', proxyHops || false);
 const authLimiter = rateLimit({ windowMs: 15 * 60_000, max: process.env.NODE_ENV === 'test' ? 1000 : 10, key: req => `${req.ip}:auth` });
@@ -50,16 +54,27 @@ app.use((req, res, next) => {
   const requestOrigin = req.headers.origin;
   const isLocalDevOrigin = process.env.NODE_ENV !== 'production' && requestOrigin && (
     allowedFrontendOrigins.has(requestOrigin) ||
-    /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+):5173$/.test(requestOrigin)
+    /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+):5173$/.test(requestOrigin) ||
+    /^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(requestOrigin)
   );
-  if (allowedFrontendOrigins.has(requestOrigin) || isLocalDevOrigin) {
+  const isRenderDeployment = requestOrigin && (
+    /^https:\/\/[a-z0-9-]+\.onrender\.com$/.test(requestOrigin) ||
+    (process.env.RENDER_EXTERNAL_URL && requestOrigin === process.env.RENDER_EXTERNAL_URL) ||
+    (process.env.APP_PUBLIC_URL && requestOrigin === process.env.APP_PUBLIC_URL) ||
+    requestOrigin === `${req.protocol}://${req.get('host')}`
+  );
+  const isAllowedOrigin = Boolean(
+    requestOrigin && (allowedFrontendOrigins.has(requestOrigin) || isLocalDevOrigin || isRenderDeployment)
+  );
+
+  if (isAllowedOrigin) {
     res.setHeader('Access-Control-Allow-Origin', requestOrigin);
     res.setHeader('Vary', 'Origin');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-Token');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
-  if (req.method === 'OPTIONS') return requestOrigin && !(allowedFrontendOrigins.has(requestOrigin) || isLocalDevOrigin) ? res.sendStatus(403) : res.sendStatus(204);
+  if (req.method === 'OPTIONS') return requestOrigin && !isAllowedOrigin ? res.sendStatus(403) : res.sendStatus(204);
   next();
 });
 app.use(express.static(path.join(__dirname, 'public')));
@@ -277,12 +292,14 @@ let viteInstance = null;
 async function attachFrontend(expressApp) {
   if (process.env.NODE_ENV === 'test') return;
 
-  const isProd = process.env.NODE_ENV === 'production';
   const newStyleRoot = path.join(__dirname, 'new_style');
+  const distPath = path.join(newStyleRoot, 'dist');
   const fs = require('fs');
+  const hasDist = fs.existsSync(path.join(distPath, 'index.html'));
+  const isProd = process.env.NODE_ENV === 'production' || (!process.env.VITE_DEV && hasDist);
 
   if (isProd) {
-    const distPath = path.join(newStyleRoot, 'dist');
+    console.log(`[Frontend] Serving pre-built static bundle from: ${distPath}`);
     expressApp.use(express.static(distPath));
     expressApp.get('*', (req, res, next) => {
       if (req.path.startsWith('/api') || req.path.startsWith('/health') || req.path.startsWith('/ready') || req.path.startsWith('/plan') || req.path.startsWith('/tourism-plan') || req.path.startsWith('/attractions') || req.path.startsWith('/ejs')) {
@@ -293,7 +310,10 @@ async function attachFrontend(expressApp) {
   } else {
     const { createServer: createViteServer } = require('vite');
     viteInstance = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        allowedHosts: ['.trycloudflare.com']
+      },
       root: newStyleRoot,
       appType: 'spa'
     });

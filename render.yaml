@@ -1,18 +1,19 @@
 # Render Blueprint Specification for Beyond the Fort
 # Team Venator (ID: 60358412) - AI Synergy Hackathon 2026
+# Free Tier Web Service Configuration
 
 services:
   - type: web
     name: beyond-the-fort
-    runtime: docker
-    plan: starter
+    runtime: node
+    plan: free
     region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
     healthCheckPath: /ready
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5173
       - key: TRUST_PROXY_HOPS
         value: 1
       - key: GEMINI_MODEL
@@ -41,4 +42,3 @@ services:
         sync: false
       - key: EMAIL_FROM
         sync: false
-

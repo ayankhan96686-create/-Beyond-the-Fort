@@ -12,3 +12,4 @@ set PORT=5173
 
 node scripts\start-lan.js
 pause
+

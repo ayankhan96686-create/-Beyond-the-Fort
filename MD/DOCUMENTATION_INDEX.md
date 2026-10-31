@@ -127,6 +127,7 @@ These capstone reports provide a comprehensive overview of the full engineering 
 
 ## 8. Deployment & DevOps Operations (`MD/deployment/`)
 
+- [**Render Free Deployment Guide**](RENDER_DEPLOYMENT_GUIDE.md): Complete setup and hosting guide for Render Free Web Service with dynamic port binding and zero-cold-start optimizations.
 - [**Production Deployment Guide**](deployment/PRODUCTION_DEPLOYMENT_GUIDE.md): Complete setup and hosting guide for Railway, Render, and VPS environments.
 - [**Production Deployment Checklist**](deployment/PRODUCTION_DEPLOYMENT_CHECKLIST.md): Pre-flight verification checklist for zero-downtime releases.
 - [**Production Environment Variables**](deployment/PRODUCTION_ENVIRONMENT_VARIABLES.md): Comprehensive reference of all `.env` configurations.

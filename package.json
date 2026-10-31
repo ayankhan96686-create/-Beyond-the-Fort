@@ -8,7 +8,8 @@
     "start": "node server.js",
     "dev": "node server.js",
     "start:lan": "node scripts/start-lan.js",
-    "build": "cd new_style && npm run build",
+    "tunnel:cross-city": "node scripts/start-cross-city-tunnel.js",
+    "build": "npm --prefix new_style install && npm --prefix new_style run build",
     "test": "node --test tests/acceptanceTests.test.js tests/agentProgress.test.js tests/i18n.test.js tests/security.test.js"
   },
   "keywords": [
@@ -22,6 +23,9 @@
   ],
   "author": "Team Venator (ID: 60358412)",
   "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
     "@langchain/core": "^1.3.2",

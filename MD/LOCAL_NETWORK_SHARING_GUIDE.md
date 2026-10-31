@@ -94,3 +94,4 @@ Windows sometimes blocks inbound connections if your Wi-Fi is marked as "Public 
 
 ### Step 4: Router AP Isolation (Rare)
 Some college or corporate guest Wi-Fi networks enable "Client Isolation" / "AP Isolation", which prevents devices on the Wi-Fi from talking to each other. If this occurs, enable your mobile hotspot on your phone, connect your laptop to the hotspot, and use the hotspot gateway IP.
+
